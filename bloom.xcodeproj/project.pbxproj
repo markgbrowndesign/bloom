@@ -6,6 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		416550BA2DD0EA29001AD4EE /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 416550B92DD0EA29001AD4EE /* Auth */; };
+		416550BC2DD0EA29001AD4EE /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = 416550BB2DD0EA29001AD4EE /* Functions */; };
+		416550BE2DD0EA29001AD4EE /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 416550BD2DD0EA29001AD4EE /* PostgREST */; };
+		416550C02DD0EA29001AD4EE /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = 416550BF2DD0EA29001AD4EE /* Realtime */; };
+		416550C22DD0EA29001AD4EE /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 416550C12DD0EA29001AD4EE /* Storage */; };
+		416550C82DD0EB5F001AD4EE /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 416550C72DD0EB5F001AD4EE /* Supabase */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		4165509C2DD0C7E3001AD4EE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,9 +38,23 @@
 		416550A52DD0C7E3001AD4EE /* bloomUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = bloomUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		416550D32DD0F4BC001AD4EE /* Exceptions for "bloom" folder in "bloom" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"config/app-config.xcconfig",
+				Info.plist,
+			);
+			target = 416550892DD0C7E2001AD4EE /* bloom */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4165508C2DD0C7E2001AD4EE /* bloom */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				416550D32DD0F4BC001AD4EE /* Exceptions for "bloom" folder in "bloom" target */,
+			);
 			path = bloom;
 			sourceTree = "<group>";
 		};
@@ -52,6 +75,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				416550BE2DD0EA29001AD4EE /* PostgREST in Frameworks */,
+				416550BC2DD0EA29001AD4EE /* Functions in Frameworks */,
+				416550C82DD0EB5F001AD4EE /* Supabase in Frameworks */,
+				416550BA2DD0EA29001AD4EE /* Auth in Frameworks */,
+				416550C22DD0EA29001AD4EE /* Storage in Frameworks */,
+				416550C02DD0EA29001AD4EE /* Realtime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +107,7 @@
 				4165508C2DD0C7E2001AD4EE /* bloom */,
 				4165509E2DD0C7E3001AD4EE /* bloomTests */,
 				416550A82DD0C7E3001AD4EE /* bloomUITests */,
+				416550C62DD0EB5F001AD4EE /* Frameworks */,
 				4165508B2DD0C7E2001AD4EE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +120,13 @@
 				416550A52DD0C7E3001AD4EE /* bloomUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		416550C62DD0EB5F001AD4EE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,6 +149,12 @@
 			);
 			name = bloom;
 			packageProductDependencies = (
+				416550B92DD0EA29001AD4EE /* Auth */,
+				416550BB2DD0EA29001AD4EE /* Functions */,
+				416550BD2DD0EA29001AD4EE /* PostgREST */,
+				416550BF2DD0EA29001AD4EE /* Realtime */,
+				416550C12DD0EA29001AD4EE /* Storage */,
+				416550C72DD0EB5F001AD4EE /* Supabase */,
 			);
 			productName = bloom;
 			productReference = 4165508A2DD0C7E2001AD4EE /* bloom.app */;
@@ -195,6 +238,9 @@
 			);
 			mainGroup = 416550812DD0C7E2001AD4EE;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				416550B82DD0EA29001AD4EE /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4165508B2DD0C7E2001AD4EE /* Products */;
 			projectDirPath = "";
@@ -396,6 +442,8 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = bloom/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Bloom;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -414,10 +462,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "bloom-app.bloom";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
 			name = Debug;
@@ -435,6 +484,8 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = bloom/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Bloom;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -453,10 +504,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "bloom-app.bloom";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
 			name = Release;
@@ -591,6 +643,50 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		416550B82DD0EA29001AD4EE /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		416550B92DD0EA29001AD4EE /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 416550B82DD0EA29001AD4EE /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		416550BB2DD0EA29001AD4EE /* Functions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 416550B82DD0EA29001AD4EE /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Functions;
+		};
+		416550BD2DD0EA29001AD4EE /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 416550B82DD0EA29001AD4EE /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		416550BF2DD0EA29001AD4EE /* Realtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 416550B82DD0EA29001AD4EE /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Realtime;
+		};
+		416550C12DD0EA29001AD4EE /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 416550B82DD0EA29001AD4EE /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
+		};
+		416550C72DD0EB5F001AD4EE /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 416550B82DD0EA29001AD4EE /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 416550822DD0C7E2001AD4EE /* Project object */;
 }
