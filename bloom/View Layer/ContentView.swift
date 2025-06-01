@@ -27,7 +27,7 @@ struct ContentView: View {
             }
             .toolbarBackground(Theme.primaryBackground, for: .tabBar)
                 
-                // Favorites Tab
+            // List Tab
             ListView()
             .foregroundStyle(Theme.textPrimary)
             .tabItem {
@@ -38,7 +38,7 @@ struct ContentView: View {
         
             // Profile Tab
             NavigationStack {
-                ProfileView(viewModel: ProfileViewModel(profile: nil))
+                ProfileView()
                     .toolbar {
                         IconButton(icon: "rectangle.portrait.and.arrow.forward", action: {})
                     }
@@ -49,7 +49,7 @@ struct ContentView: View {
             }
             .toolbarBackground(Theme.primaryBackground, for: .tabBar)
         }
-        .tint(Theme.textButton) // Your app's accent color
+        .tint(Theme.textButton)
     }
 }
 

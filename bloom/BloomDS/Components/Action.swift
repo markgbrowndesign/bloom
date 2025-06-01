@@ -17,9 +17,8 @@ func actionButton(icon: String, title: String, action: @escaping () -> Void) -> 
             Text(title)
                 .font(.caption)
                 .padding(.bottom, 12)
-        }
+        }.frame(maxWidth: .infinity)
     }
-    .frame(maxWidth: .infinity)
     .background(Theme.actionBackground)
     .clipShape(.buttonBorder)
     .foregroundColor(Theme.textSecondary)
@@ -38,8 +37,8 @@ func primaryButton(icon: String? = nil, title: String, action: @escaping () -> V
                 .fontWeight(.bold)
                 .padding(.vertical, 16)
         }
+        .frame(maxWidth: .infinity)
     }
-    .frame(maxWidth: .infinity)
     .foregroundStyle(Theme.primaryBackground)
     .background(Theme.buttonBackground)
     .clipShape(.buttonBorder)

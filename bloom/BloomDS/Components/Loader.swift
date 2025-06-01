@@ -15,4 +15,5 @@ func LoaderView(message: String) -> some View {
         Text(message)
             .foregroundStyle(Theme.textSecondary)
     }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
 }

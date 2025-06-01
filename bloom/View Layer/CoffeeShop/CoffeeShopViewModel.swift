@@ -8,6 +8,7 @@
 import Foundation
 import Supabase
 import Combine
+import MapKit
     
 class CoffeeShopViewModel: ObservableObject {
     
@@ -19,6 +20,8 @@ class CoffeeShopViewModel: ObservableObject {
     private var cancellable = Set<AnyCancellable>()
     
     func loadShop(shopId: UUID, forceRefresh: Bool = false) {
+        print("loading shop")
+        
         repository.$shopDetails
             .compactMap { $0[shopId] }
             .receive(on: DispatchQueue.main)
@@ -41,6 +44,35 @@ class CoffeeShopViewModel: ObservableObject {
         Task {
             await repository.loadShopDetails(shopId: shopId, forceRefresh: forceRefresh)
         }
+    }
+    
+    func onTapDirections() {
+        
+        guard let shopLatitude = shop?.coordinatesLatitude, let shopLongitude = shop?.coordinatesLongitude else { return }
+    
+            
+        let location = CLLocationCoordinate2D(latitude: shopLatitude, longitude: shopLongitude)
+        let mapItem = MKMapItem(placemark: MKPlacemark(coordinate: location, addressDictionary: nil))
+        mapItem.name = shop?.name ?? ""
+        
+//        let method: Any
+//        switch userObject.preferredTravelMethod {
+//        case .driving:
+//            method = MKLaunchOptionsDirectionsModeDriving
+//        case .walking:
+//            method = MKLaunchOptionsDirectionsModeWalking
+//        case .publicTransport:
+//            method = MKLaunchOptionsDirectionsModeTransit
+//        }
+        
+        let launchOptions: [String : Any] = [
+            MKLaunchOptionsDirectionsModeKey :
+                MKLaunchOptionsDirectionsModeTransit,
+                MKLaunchOptionsShowsTrafficKey: false
+            ]
+        MKMapItem.openMaps(with: [mapItem], launchOptions: launchOptions)
+            
+        
     }
     
 }

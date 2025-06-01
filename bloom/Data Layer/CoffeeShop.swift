@@ -40,12 +40,12 @@ struct CoffeeShop: Codable, Identifiable {
     let servicePowerOutlets: Bool?
     let serviceParking: Bool?
     let servicePetFriendly: Bool?
-    let serviceOutdoor: Bool?
-    let serviceSellsCoffee: Bool?
+    let serviceOutdoorSeating: Bool?
+    let serviceSellsBeans: Bool?
     
     //assets
-    let imageLogo: String?
-    let imageHeader: String?
+    let imageLogoURL: String?
+    let imageHeaderURL: String?
     
     //metadata
     let createdAt: String?
@@ -57,13 +57,13 @@ struct CoffeeShop: Codable, Identifiable {
         case name = "shop_name"
         case shortDescription = "short_description"
         case longDescription = "long_description"
-        case shopURL = "website_url"
+        case shopURL = "shop_url"
         
         case addressArea = "address_area"
         case coordinatesLongitude = "coordinates_long"
         case coordinatesLatitude = "coordinates_lat"
-        case addressFirstLine = "first_address_line"
-        case addressSecondLine = "second_address_line"
+        case addressFirstLine = "address_line_1"
+        case addressSecondLine = "address_line_2"
         
         case coffeeServed = "coffee_served"
         case equipmentGrinder = "equipment_grinder"
@@ -73,16 +73,16 @@ struct CoffeeShop: Codable, Identifiable {
         case serviceFoodCounter = "service_food_counter"
         case serviceFoodHot = "service_food_hot"
         case serviceWiFi = "service_wifi"
-        case serviceSellsCoffee = "service_sells_coffee"
+        case serviceSellsBeans = "service_sells_beans"
         case servicePowerOutlets = "service_power_outlets"
         case serviceParking = "service_parking"
         case servicePetFriendly = "service_dog_friendly"
-        case serviceOutdoor = "service_outdoor"
+        case serviceOutdoorSeating = "service_outdoor_seating"
         
-        case imageLogo = "image_logo"
-        case imageHeader = "image_header"
+        case imageLogoURL = "image_logo_url"
+        case imageHeaderURL = "image_header_url"
         
         case createdAt = "created_at"
-        case lastUpdatedAt = "last_updated"
+        case lastUpdatedAt = "updated_at"
     }
 }

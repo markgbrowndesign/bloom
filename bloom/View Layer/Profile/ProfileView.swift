@@ -9,14 +9,42 @@ import SwiftUI
 
 struct ProfileView: View {
     
-    @StateObject var viewModel: ProfileViewModel
+    @StateObject var viewModel = ProfileViewModel()
     let rowInsets = EdgeInsets(top: 16, leading: 20, bottom: 16, trailing: 20)
     
     var body: some View {
+        NavigationStack {
+            Group {
+                if viewModel.isLoading {
+                    LoaderView(message: "Wait")
+                } else if let error = viewModel.error {
+                    ErrorView(
+                        error: error,
+                        actionLabel: "Retry",
+                        action: { viewModel.refreshProfile() }
+                    )
+                } else {
+                    ProfileListView
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            .scrollContentBackground(.hidden)
+            .background(Theme.primaryBackground)
+        }
+        .task {
+            viewModel.loadUserProfile()
+        }
+        .refreshable {
+            viewModel.refreshProfile()
+        }
+        
+    }
+    
+    var ProfileListView: some View {
         List {
             // Header section
             Section {
-                ProfileDetailView(profile: viewModel.profile)
+                ProfileDetailView(email: viewModel.profile?.email ?? "", username: viewModel.profile?.username ?? "")
                     .listSectionSeparator(.hidden)
             }
             .listRowBackground(Color.clear)
@@ -30,7 +58,7 @@ struct ProfileView: View {
                     title: "Leave a review",
                     subtitle: nil,
                     listItemStyle: .link,
-                    action: {viewModel.printLn()}
+                    action: {}
                 )
                 ProfileViewListItem(
                     icon: "shippingbox",
@@ -47,21 +75,21 @@ struct ProfileView: View {
             // Settings Section
             Section {
                 // TODO: Implement settings functions
-//                ProfileViewListItem(
-//                    icon: "tram",
-//                    title: "Travel method",
-//                    subtitle: "Set the default for getting directions",
-//                    listItemStyle: .navigation,
-//                    action: {}
-//                )
-//                
-//                ProfileViewListItem(
-//                    icon: "number",
-//                    title: "Units of measure",
-//                    subtitle: "Choose how we show you distance",
-//                    listItemStyle: .navigation,
-//                    action: {}
-//                )
+                ProfileViewListItem(
+                    icon: "tram",
+                    title: "Travel method",
+                    subtitle: "Set the default for getting directions",
+                    listItemStyle: .navigation,
+                    action: {}
+                )
+                
+                ProfileViewListItem(
+                    icon: "number",
+                    title: "Units of measure",
+                    subtitle: "Choose how we show you distance",
+                    listItemStyle: .navigation,
+                    action: {}
+                )
                 
                 ProfileViewListItem(
                     icon: "bell",
@@ -106,7 +134,7 @@ struct ProfileView: View {
                     subtitle: "Had enough coffee? Say goodbye",
                     listItemStyle: .navigation,
                     isDestructive: true,
-                    action: {}
+                    action: { viewModel.logout()}
                 )
             }
             .listRowBackground(Theme.Destructive.Background.weak)
@@ -115,12 +143,14 @@ struct ProfileView: View {
         .scrollContentBackground(.hidden)
         .background(Theme.primaryBackground)
         .foregroundStyle(Theme.textPrimary)
+
     }
 }
 
 struct ProfileDetailView: View {
     
-    let profile: User
+    let email: String
+    let username: String
     
     var body: some View {
         VStack (alignment: .leading) {
@@ -132,11 +162,11 @@ struct ProfileDetailView: View {
                                     .font(.system(size: 24))
                                     .foregroundColor(.brown)
                             )
-            Text(profile.username)
+            Text(username)
                 .font(.system(size: 32))
                 .fontWeight(.bold)
             
-            Text(profile.email)
+            Text(email)
                 .foregroundStyle(Theme.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -193,5 +223,5 @@ enum ListItemStyle {
 }
 
 #Preview {
-    ProfileView(viewModel: ProfileViewModel(profile: nil))
+    ProfileView()
 }

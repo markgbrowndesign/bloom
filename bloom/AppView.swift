@@ -9,7 +9,7 @@ import SwiftUI
 
 struct AppView: View {
     @State var isAuthenticated = false
-    var cafe: CoffeeShop?
+
       var body: some View {
         Group {
           if isAuthenticated {
@@ -24,6 +24,7 @@ struct AppView: View {
               isAuthenticated = state.session != nil
             }
           }
+            
         }
       }
 }

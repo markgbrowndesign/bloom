@@ -16,45 +16,114 @@ struct CoffeeShopView: View {
     @State private var showingErrorAlert = false
     
     @State private var showFullDescription = false
-    @State private var safeAreaTop: CGFloat = 47 // Default value
-    
-    @State var headerOffsets: (CGFloat, CGFloat) = (0,0)
+//    @State private var safeAreaTop: CGFloat = 47 // Default value
+//    
+//    @State var headerOffsets: (CGFloat, CGFloat) = (0,0)
     
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
+        NavigationStack{
             Group {
                 if viewModel.isLoading {
                     LoaderView(message: "Loading shop details...")
                 } else if let shop = viewModel.shop {
-                    VStack (spacing: 0) {
-                        HeaderView(headerImage: "coffee_shop_background", logoImage: "shop_logo")
-                        VStack(spacing: 24) {
-                            TitleView(shop: shop)
-                            ButtonsGroupView(onDirectionsTap: {}, onNoteTap: {}, onFavoriteTap: {}, onUpvoteTap: {})
-                            if viewModel.shop?.longDescription != nil {
-                                TruncatableText(text: shop.longDescription ?? "")
-                            }
-                            CafeDetailsView(cafe: shop)
-                            BottomText()
-                        }
-                        .padding(.bottom, 120)
-                    }
+                    ShopDetailContent(shop: shop)
                 } else if viewModel.error != nil {
                     EmptyState(
-                        title: "Something went wrong",
-                        subtitle: viewModel.error?.localizedDescription,
-                        actionTitle: "Retry") {
-                            viewModel.loadShop(shopId: shopId, forceRefresh: true)
-                        }
+                        title: "Failed to Load",
+                        subtitle: "We couldn't load the details for this coffee shop. Please check your connection and try again.",
+                        actionTitle: "Retry",
+                        action: { viewModel.loadShop(shopId: shopId, forceRefresh: true) }
+                    )
+                    .frame(maxHeight: .infinity)
                 }
             }
             .task {
                 viewModel.loadShop(shopId: shopId)
             }
         }
-        .coordinateSpace(name: "scroll")
         .ignoresSafeArea(.container, edges: .vertical)
         .background(Theme.primaryBackground)
+    }
+    
+//    var body: some View {
+//        ScrollView(.vertical, showsIndicators: false) {
+//            Group {
+//                if viewModel.isLoading {
+////                    LoaderView(message: "Loading shop details...")
+////                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                    VStack(spacing: 16) {
+//                        Spacer()
+//                        ProgressView()
+//                            .scaleEffect(1.2)
+//                            .foregroundStyle(Theme.textSecondary)
+//                        Text("Loading shop details...")
+//                            .foregroundStyle(Theme.textPrimary)
+//                        Spacer()
+//                    }
+//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                    .background(Theme.primaryBackground)
+//                } else if let shop = viewModel.shop {
+//                    VStack(alignment: .center, spacing: 16) {
+//                        ProgressView()
+//                            .scaleEffect(1.2)
+//                            .foregroundStyle(Theme.textSecondary)
+//                        Text("Loading shop details...")
+//                            .foregroundStyle(Theme.textPrimary)
+//                    }
+//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                    .background(Theme.primaryBackground)
+////                    VStack (spacing: 0) {
+////                        HeaderView(headerImage: "coffee_shop_background", logoImage: "shop_logo")
+////                        VStack(spacing: 24) {
+////                            TitleView(shop: shop)
+////                            ButtonsGroupView(onDirectionsTap: { viewModel.onTapDirections() }, onNoteTap: {}, onFavoriteTap: {}, onUpvoteTap: {})
+////                            if viewModel.shop?.longDescription != nil {
+////                                TruncatableText(text: shop.longDescription ?? "")
+////                            }
+////                            CafeDetailsView(cafe: shop)
+////                            BottomText()
+////                        }
+////                        .padding(.bottom, 120)
+////                    }
+//                } else if viewModel.error != nil {
+//                    EmptyState(
+//                        title: "Something went wrong",
+//                        subtitle: viewModel.error?.localizedDescription,
+//                        actionTitle: "Retry") {
+//                            viewModel.loadShop(shopId: shopId, forceRefresh: true)
+//                        }
+//                }
+//            }
+//            .task {
+//                viewModel.loadShop(shopId: shopId)
+//            }
+//        }
+//        .coordinateSpace(name: "scroll")
+//        .ignoresSafeArea(.container, edges: .vertical)
+//        .background(Theme.primaryBackground)
+//    }
+}
+
+struct ShopDetailContent: View {
+    let shop: CoffeeShop
+    
+    var body: some View {
+        ScrollView {
+            VStack (spacing: 0) {
+                HeaderView(headerImage: "coffee_shop_background", logoImage: "shop_logo")
+                VStack(spacing: 24) {
+                    TitleView(shop: shop)
+                    ButtonsGroupView(onDirectionsTap: { }, onNoteTap: {}, onFavoriteTap: {}, onUpvoteTap: {})
+                    if shop.longDescription != nil {
+                        TruncatableText(text: shop.longDescription ?? "")
+                    }
+                    CafeDetailsView(shop: shop)
+                    BottomText()
+                }
+                .padding(.bottom, 120)
+            }
+        }
+        .coordinateSpace(name: "scroll")
     }
 }
 
@@ -188,39 +257,38 @@ struct AddressView: View {
 }
 
 struct CafeDetailsView: View {
-    var cafe: CoffeeShop
+    var shop: CoffeeShop
     
     var body: some View {
         
         VStack(spacing: 16) {
             Section {
-                AddressView(shopLatitude: cafe.coordinatesLatitude ?? 0, shopLongitude: cafe.coordinatesLongitude ?? 0, addressLine1: "23-25 Leather Ln", addressLine2: "London, EC1N 7TE")
+                AddressView(shopLatitude: shop.coordinatesLatitude ?? 0, shopLongitude: shop.coordinatesLongitude ?? 0, addressLine1: shop.addressFirstLine ?? "", addressLine2: shop.addressSecondLine ?? "")
             }
             Section {
                 //Coffee served
                 DetailSection(title: "Coffee") {
-                    DetailTextRow(label: "Square mile coffee roasters", value: "")
+                    DetailTextRow(label: shop.coffeeServed ?? "Unknown", value: "")
                 }
                 
                 DetailSection(title: "Equipment") {
-                    DetailTextRow(label: "Espresso machine", value: "La Marzocco Linea")
-                    DetailTextRow(label: "Grinder", value: "Victoria Arduino Mythos")
+                    DetailTextRow(label: "Espresso machine", value: shop.equipmentMachine ?? "Unknown")
+                    DetailTextRow(label: "Grinder", value: shop.equipmentGrinder ?? "Unknown")
                 }
                 
-                DetailSection(title: "Serving") {
-                    DetailIconRow(label: "Espresso", value: true)
-                    DetailIconRow(label: "Pour over", value: false)
-                    DetailIconRow(label: "Syphon", value: false)
-                    DetailIconRow(label: "Matcha", value: true)
-                }
+//                DetailSection(title: "Serving") {
+//                    DetailIconRow(label: "Espresso", value: true)
+//                    DetailIconRow(label: "Pour over", value: false)
+//                    DetailIconRow(label: "Syphon", value: false)
+//                    DetailIconRow(label: "Matcha", value: true)
+//                }
                 
                 DetailSection(title: "Ammenities") {
-                    DetailIconRow(label: "Accessible", value: true)
-                    DetailIconRow(label: "Serves food", value: false)
-                    DetailIconRow(label: "WiFi", value: true)
-                    DetailIconRow(label: "Sells coffee beans", value: true)
-                    DetailIconRow(label: "Pet friendly", value: false)
-                    DetailIconRow(label: "Sells coffee beans", value: true)
+                    DetailIconRow(label: "Accessible", value: shop.serviceAccessible ?? false)
+                    DetailIconRow(label: "Serves food", value: shop.serviceFoodHot ?? false)
+                    DetailIconRow(label: "WiFi", value: shop.serviceWiFi ?? false)
+                    DetailIconRow(label: "Sells coffee beans", value: shop.serviceSellsBeans ?? false)
+                    DetailIconRow(label: "Pet friendly", value: shop.servicePetFriendly ?? false)
                 }
                 
             } header: {

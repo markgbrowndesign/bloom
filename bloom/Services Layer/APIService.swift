@@ -34,15 +34,19 @@ class APIService: ObservableObject {
         return data
     }
     
-    func fetchUserWith(id: UUID) async throws -> User {
-        let data: User = try await supabase
+    func fetchUserWith(id: UUID) async throws -> Profile? {
+        
+        print("id \(id)")
+        
+        let data: Profile = try await supabase
             .from("profiles")
             .select()
-            .eq("id", value: id)
-            .limit(1)
+            .eq("id", value: id.uuidString)
+            .single()
             .execute()
             .value
         
+        print("data: \(data)")
         return data
     }
     
