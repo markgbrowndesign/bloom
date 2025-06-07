@@ -9,6 +9,9 @@ import SwiftUI
 
 struct ContentView: View {
     
+    // Create a single instance that persists across the app
+    @StateObject private var locationManager = LocationManager()
+    
     init() {
       // Large Navigation Title
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(hex: "#F2E1CAFF") ?? UIColor.green]
@@ -50,9 +53,12 @@ struct ContentView: View {
             .toolbarBackground(Theme.primaryBackground, for: .tabBar)
         }
         .tint(Theme.textButton)
-        .task {
-            let locationManager = LocationManager()
-            locationManager.requestLocation()
+        .onAppear {
+            // Trigger location request when app appears
+            if locationManager.authorizationStatus == .notDetermined {
+                print("🚀 App appeared, requesting location permission...")
+                locationManager.requestLocationPermission()
+            }
         }
     }
 }

@@ -10,9 +10,16 @@ import Foundation
 class CoffeeShopRepository: ObservableObject {
     private let apiService = APIService()
     private let cacheManager = CacheManager()
+    private let locationManager = LocationManager()
     
     @Published var coffeeShops: LoadingState<[CoffeeShop]> = .idle
+    @Published var enrichedCoffeeShops: LoadingState<[EnrichedCoffeeShop]> = .idle
     @Published var shopDetails: [UUID: LoadingState<CoffeeShop>] = [:]
+    @Published var closestShop: LoadingState<EnrichedCoffeeShop?> = .idle
+    
+    init() {
+        locationManager.requestLocationPermission()
+    }
         
     func loadShops(forceRefresh: Bool = false) async {
         await MainActor.run {
@@ -40,6 +47,52 @@ class CoffeeShopRepository: ObservableObject {
             await MainActor.run {
                 coffeeShops = .failed(error)
             }
+        }
+    }
+    
+    func loadEnrichedShops(forceRefresh: Bool = false) async {
+        await MainActor.run {
+            enrichedCoffeeShops = .loading
+        }
+        
+        await loadShops(forceRefresh: forceRefresh)
+        
+        switch coffeeShops {
+        case .loaded(let shops):
+            let enrichedShops = await locationManager.enrichCoffeeShopsWithLocationData(shops)
+            await MainActor.run {
+                enrichedCoffeeShops = .loaded(enrichedShops)
+            }
+        case .failed(let error):
+            await MainActor.run {
+                enrichedCoffeeShops = .failed(error)
+            }
+        default:
+            await MainActor.run {
+                enrichedCoffeeShops = .failed(NSError(domain: "ShopLoadError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to load shops"]))
+            }
+        }
+    }
+    
+    func loadClosestShop(forceRefresh: Bool = false) async {
+        await MainActor.run {
+            closestShop = .loading
+        }
+        
+        await loadEnrichedShops(forceRefresh: forceRefresh)
+        
+        switch enrichedCoffeeShops {
+        case .loaded(let enrichedCoffeeShops):
+            let closest = enrichedCoffeeShops.first
+            await MainActor.run {
+                closestShop = .loaded(closest)
+            }
+        case .failed(let error):
+            await MainActor.run {
+                closestShop = .failed(error)
+            }
+        default:
+            break
         }
     }
     

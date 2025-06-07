@@ -13,7 +13,7 @@ class APIService: ObservableObject {
     func fetchShops() async throws -> [CoffeeShop] {
         let data: [CoffeeShop] = try await supabase
             .from("coffee_shop")
-            .select("id, shop_name, address_area")
+            .select("id, shop_name, address_area, coordinates_lat, coordinates_long")
             .execute()
             .value
         return data

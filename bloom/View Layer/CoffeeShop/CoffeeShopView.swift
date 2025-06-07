@@ -24,9 +24,6 @@ struct CoffeeShopView: View {
                     LoaderView(message: "Loading shop details...")
                 } else if viewModel.shop != nil {
                     ShopDetailContent
-                        .task {
-                            viewModel.calculateTravelTime()
-                        }
 
                 } else if viewModel.error != nil {
                     EmptyState(
@@ -128,25 +125,12 @@ struct TitleView: View {
                 //TODO: add if viewModel.isLoading
                 Text(shop.addressArea)
                 Text("•")
-                Text(formatTime(travelTime ?? TimeInterval()))
+                Text("5 min")
             }
             .foregroundStyle(Theme.textSecondary)
             .font(.subheadline)
         }
         .frame(maxWidth: .infinity)
-    }
-    
-    func formatTime(_ timeInterval: TimeInterval) -> String {
-        
-        let hours = Int(timeInterval) / 3600
-        let minutes = Int(timeInterval) % 3600 / 60
-        
-        if hours > 0 {
-            return "\(hours)h \(minutes)m"
-        } else {
-            return "\(minutes) min"
-        }
-        
     }
 }
 

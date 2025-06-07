@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 struct CoffeeShop: Codable, Identifiable {
     
@@ -83,4 +84,14 @@ struct CoffeeShop: Codable, Identifiable {
         case createdAt = "created_at"
         case lastUpdatedAt = "updated_at"
     }
+}
+
+struct EnrichedCoffeeShop: Identifiable {
+    
+    let details: CoffeeShop
+    let distance: CLLocationDistance?
+    let travelTime: TimeInterval?
+    let isCalculating: Bool
+    
+    var id: UUID { details.id }
 }

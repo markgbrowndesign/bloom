@@ -16,7 +16,7 @@ struct ListView: View {
         NavigationStack {
             Group {
                 if viewModel.isLoading && viewModel.shops.isEmpty {
-                    LoaderView(message: "Finding coffee shops")
+                    LoaderView(message: "Finding nearby coffee shops")
                 } else if viewModel.showEmptyState {
                     EmptyState(
                         title: "No Coffee Shops Found",
@@ -59,7 +59,7 @@ struct ListView: View {
             Section {
                 ForEach(viewModel.shops, id: \.id) { shop in
                     NavigationLink (destination: CoffeeShopView(shopId: shop.id)) {
-                        ShopListItemView(shopName: shop.name, shopLogoSource: "shop_logo_list", shopArea: shop.addressArea)
+                        ShopListItemView(enrichedShop: shop)
                     }
                     .buttonStyle(.plain)
                     .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
