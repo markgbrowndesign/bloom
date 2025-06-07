@@ -50,6 +50,10 @@ struct ContentView: View {
             .toolbarBackground(Theme.primaryBackground, for: .tabBar)
         }
         .tint(Theme.textButton)
+        .task {
+            let locationManager = LocationManager()
+            locationManager.requestLocation()
+        }
     }
 }
 

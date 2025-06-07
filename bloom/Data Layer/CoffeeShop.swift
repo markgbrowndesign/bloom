@@ -14,7 +14,6 @@ struct CoffeeShop: Codable, Identifiable {
     let name: String
     
     //description
-    let shortDescription: String?
     let longDescription: String?
     let shopURL: String?
     
@@ -55,8 +54,7 @@ struct CoffeeShop: Codable, Identifiable {
         
         case id
         case name = "shop_name"
-        case shortDescription = "short_description"
-        case longDescription = "long_description"
+        case longDescription = "description"
         case shopURL = "shop_url"
         
         case addressArea = "address_area"

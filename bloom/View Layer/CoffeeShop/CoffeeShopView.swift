@@ -16,17 +16,18 @@ struct CoffeeShopView: View {
     @State private var showingErrorAlert = false
     
     @State private var showFullDescription = false
-//    @State private var safeAreaTop: CGFloat = 47 // Default value
-//    
-//    @State var headerOffsets: (CGFloat, CGFloat) = (0,0)
-    
+
     var body: some View {
         NavigationStack{
             Group {
                 if viewModel.isLoading {
                     LoaderView(message: "Loading shop details...")
-                } else if let shop = viewModel.shop {
-                    ShopDetailContent(shop: shop)
+                } else if viewModel.shop != nil {
+                    ShopDetailContent
+                        .task {
+                            viewModel.calculateTravelTime()
+                        }
+
                 } else if viewModel.error != nil {
                     EmptyState(
                         title: "Failed to Load",
@@ -45,85 +46,25 @@ struct CoffeeShopView: View {
         .background(Theme.primaryBackground)
     }
     
-//    var body: some View {
-//        ScrollView(.vertical, showsIndicators: false) {
-//            Group {
-//                if viewModel.isLoading {
-////                    LoaderView(message: "Loading shop details...")
-////                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                    VStack(spacing: 16) {
-//                        Spacer()
-//                        ProgressView()
-//                            .scaleEffect(1.2)
-//                            .foregroundStyle(Theme.textSecondary)
-//                        Text("Loading shop details...")
-//                            .foregroundStyle(Theme.textPrimary)
-//                        Spacer()
-//                    }
-//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                    .background(Theme.primaryBackground)
-//                } else if let shop = viewModel.shop {
-//                    VStack(alignment: .center, spacing: 16) {
-//                        ProgressView()
-//                            .scaleEffect(1.2)
-//                            .foregroundStyle(Theme.textSecondary)
-//                        Text("Loading shop details...")
-//                            .foregroundStyle(Theme.textPrimary)
-//                    }
-//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                    .background(Theme.primaryBackground)
-////                    VStack (spacing: 0) {
-////                        HeaderView(headerImage: "coffee_shop_background", logoImage: "shop_logo")
-////                        VStack(spacing: 24) {
-////                            TitleView(shop: shop)
-////                            ButtonsGroupView(onDirectionsTap: { viewModel.onTapDirections() }, onNoteTap: {}, onFavoriteTap: {}, onUpvoteTap: {})
-////                            if viewModel.shop?.longDescription != nil {
-////                                TruncatableText(text: shop.longDescription ?? "")
-////                            }
-////                            CafeDetailsView(cafe: shop)
-////                            BottomText()
-////                        }
-////                        .padding(.bottom, 120)
-////                    }
-//                } else if viewModel.error != nil {
-//                    EmptyState(
-//                        title: "Something went wrong",
-//                        subtitle: viewModel.error?.localizedDescription,
-//                        actionTitle: "Retry") {
-//                            viewModel.loadShop(shopId: shopId, forceRefresh: true)
-//                        }
-//                }
-//            }
-//            .task {
-//                viewModel.loadShop(shopId: shopId)
-//            }
-//        }
-//        .coordinateSpace(name: "scroll")
-//        .ignoresSafeArea(.container, edges: .vertical)
-//        .background(Theme.primaryBackground)
-//    }
-}
-
-struct ShopDetailContent: View {
-    let shop: CoffeeShop
-    
-    var body: some View {
-        ScrollView {
-            VStack (spacing: 0) {
-                HeaderView(headerImage: "coffee_shop_background", logoImage: "shop_logo")
-                VStack(spacing: 24) {
-                    TitleView(shop: shop)
-                    ButtonsGroupView(onDirectionsTap: { }, onNoteTap: {}, onFavoriteTap: {}, onUpvoteTap: {})
-                    if shop.longDescription != nil {
-                        TruncatableText(text: shop.longDescription ?? "")
+    var ShopDetailContent: some View {
+            ScrollView {
+                if let shop = viewModel.shop {
+                    VStack (spacing: 0) {
+                        HeaderView(headerImage: "coffee_shop_background", logoImage: "shop_logo")
+                        VStack(spacing: 24) {
+                            TitleView(shop: shop, travelTime: viewModel.travelTime)
+                            ButtonsGroupView(onDirectionsTap: { viewModel.onTapDirections() }, onNoteTap: {}, onFavoriteTap: {}, onUpvoteTap: {})
+                            if shop.longDescription != nil {
+                                TruncatableText(text: shop.longDescription ?? "")
+                            }
+                            CafeDetailsView(shop: shop)
+                            BottomText(shop: shop)
+                        }
+                        .padding(.bottom, 120)
                     }
-                    CafeDetailsView(shop: shop)
-                    BottomText()
                 }
-                .padding(.bottom, 120)
             }
-        }
-        .coordinateSpace(name: "scroll")
+            .coordinateSpace(name: "scroll")
     }
 }
 
@@ -173,6 +114,7 @@ struct HeaderView: View {
 struct TitleView: View {
     
     let shop: CoffeeShop
+    let travelTime: TimeInterval?
     
     var body: some View {
         VStack {
@@ -183,16 +125,28 @@ struct TitleView: View {
                 .padding(.bottom, 4)
             
             HStack {
+                //TODO: add if viewModel.isLoading
                 Text(shop.addressArea)
                 Text("•")
-                Text("Independent")
-                Text("•")
-                Text("5 min walk")
+                Text(formatTime(travelTime ?? TimeInterval()))
             }
             .foregroundStyle(Theme.textSecondary)
             .font(.subheadline)
         }
         .frame(maxWidth: .infinity)
+    }
+    
+    func formatTime(_ timeInterval: TimeInterval) -> String {
+        
+        let hours = Int(timeInterval) / 3600
+        let minutes = Int(timeInterval) % 3600 / 60
+        
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        } else {
+            return "\(minutes) min"
+        }
+        
     }
 }
 
@@ -306,9 +260,11 @@ struct CafeDetailsView: View {
 
 struct BottomText: View {
     
+    let shop: CoffeeShop
+    
     var body: some View {
         VStack(alignment: .center, spacing: 4) {
-            Text("Last updated: 12 May 2025")
+            Text("Last updated: \(shop.lastUpdatedAt)")
                 .foregroundStyle(Theme.textSecondary)
             
             textButton(title: "Report inaccuracies") { }
