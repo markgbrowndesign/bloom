@@ -12,18 +12,25 @@ import MapKit
     
 class CoffeeShopViewModel: ObservableObject {
     
-    @Published var shop: CoffeeShop?
+    @Published var shop: Shop?
+    @Published var distance: CLLocationDistance?
     @Published var isLoading = false
     @Published var error: Error?
-    @Published var travelTime: TimeInterval?
     
-    private let repository = CoffeeShopRepository()
+    private var repository: ShopRepository?
     private var cancellable = Set<AnyCancellable>()
-    private let locationManager = LocationManager()
+    
+    func setupDependencies(shopRepository: ShopRepository) {
+        self.repository = shopRepository
+    }
     
     func loadShop(shopId: UUID, forceRefresh: Bool = false) {
 
-        repository.$shopDetails
+        guard let repositroy = repository else {
+            return
+        }
+        
+        repository?.$shopDetails
             .compactMap { $0[shopId] }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] loadingState in
@@ -43,18 +50,20 @@ class CoffeeShopViewModel: ObservableObject {
             }
             .store(in: &cancellable)
         Task {
-            await repository.loadShopDetails(shopId: shopId, forceRefresh: forceRefresh)
+            if let shop = repository?.shops.value?.first(where: { $0.id == shopId }) {
+                await repository?.loadShopDetails(shop: shop, forceRefresh: forceRefresh)
+            }
         }
     }
     
     func onTapDirections() {
         
-        guard let shopLatitude = shop?.coordinatesLatitude, let shopLongitude = shop?.coordinatesLongitude else { return }
+        guard let shopLatitude = shop?.details.coordinatesLatitude, let shopLongitude = shop?.details.coordinatesLongitude else { return }
         
         let location = CLLocationCoordinate2D(latitude: shopLatitude, longitude: shopLongitude)
         
         let mapItem = MKMapItem(placemark: MKPlacemark(coordinate: location, addressDictionary: nil))
-        mapItem.name = shop?.name ?? ""
+        mapItem.name = shop?.details.name ?? ""
         
       
         

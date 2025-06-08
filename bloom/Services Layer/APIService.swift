@@ -10,8 +10,8 @@ import Supabase
 
 class APIService: ObservableObject {
     
-    func fetchShops() async throws -> [CoffeeShop] {
-        let data: [CoffeeShop] = try await supabase
+    func fetchShops() async throws -> [ShopDetail] {
+        let data: [ShopDetail] = try await supabase
             .from("coffee_shop")
             .select("id, shop_name, address_area, coordinates_lat, coordinates_long")
             .execute()
@@ -19,10 +19,10 @@ class APIService: ObservableObject {
         return data
     }
     
-    func fetchShopWith(id: UUID) async throws -> CoffeeShop? {
+    func fetchShopWith(id: UUID) async throws -> ShopDetail? {
         print("get shop with id: \(id)")
         
-        let data: CoffeeShop = try await supabase
+        let data: ShopDetail = try await supabase
             .from("coffee_shop")
             .select()
             .eq("id", value: id.uuidString)
@@ -57,4 +57,13 @@ enum LoadingState<T> {
     case loading
     case loaded(T)
     case failed(Error)
+    
+    var value: T? {
+        switch self {
+        case .loaded(let value):
+            return value
+        default:
+            return nil
+        }
+    }
 }

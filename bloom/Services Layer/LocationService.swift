@@ -9,9 +9,9 @@ import Swift
 import CoreLocation
 import MapKit
 
-class LocationManager: NSObject, ObservableObject {
+class LocationService: NSObject, ObservableObject {
 
-    private let manager = CLLocationManager()
+    private let service = CLLocationManager()
     
     @Published var currentLocation: CLLocationCoordinate2D?
     @Published var authorizationStatus: CLAuthorizationStatus
@@ -23,8 +23,8 @@ class LocationManager: NSObject, ObservableObject {
         super.init()
         
         
-        manager.delegate = self
-        manager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+        service.delegate = self
+        service.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
         
         print("location services initialised with status \(authorizationStatus)")
         
@@ -36,7 +36,7 @@ class LocationManager: NSObject, ObservableObject {
     }
     
     func requestLocationPermission() {
-        manager.requestWhenInUseAuthorization()
+        service.requestWhenInUseAuthorization()
     }
     
     func requestCurrentLocation() {
@@ -48,10 +48,10 @@ class LocationManager: NSObject, ObservableObject {
         }
         
         isLocationLoading = true
-        manager.requestLocation()
+        service.requestLocation()
     }
     
-    func calculateDistance(to shop: CoffeeShop) -> CLLocationDistance? {
+    func calculateDistance(to shop: ShopDetail) -> CLLocationDistance? {
         guard let currentLocation = currentLocation,
               let shopLat = shop.coordinatesLatitude,
               let shopLong = shop.coordinatesLongitude else {
@@ -68,7 +68,7 @@ class LocationManager: NSObject, ObservableObject {
         return userLocation.distance(from: shopLocation)
     }
     
-    func calculateTravelTime(to shop: CoffeeShop, using transportType: MKDirectionsTransportType = .walking) async -> TimeInterval? {
+    func calculateTravelTime(to shop: ShopDetail, using transportType: MKDirectionsTransportType = .walking) async -> TimeInterval? {
         
         guard let currentLocation = currentLocation,
               let shopLat = shop.coordinatesLatitude,
@@ -97,19 +97,19 @@ class LocationManager: NSObject, ObservableObject {
         
     }
     
-    func enrichCoffeeShopsWithLocationData(_ shops: [CoffeeShop]) async -> [EnrichedCoffeeShop] {
+    func enrichCoffeeShopsWithLocationData(_ shops: [ShopDetail]) async -> [Shop] {
         
         guard currentLocation != nil else {
-            return shops.map { EnrichedCoffeeShop(details: $0, distance: nil, travelTime: nil, isCalculating: false) }
+            return shops.map { Shop(details: $0, distance: nil, travelTime: nil, isCalculating: false) }
         }
         
-        var enrichedShops: [EnrichedCoffeeShop] = []
+        var enrichedShops: [Shop] = []
         
         for shop in shops {
             let distance = calculateDistance(to: shop)
             let travelTime = await calculateTravelTime(to: shop)
             
-            let enrichedCoffeeShop = EnrichedCoffeeShop(
+            let enrichedCoffeeShop = Shop(
                 details: shop,
                 distance: distance,
                 travelTime: travelTime,
@@ -131,7 +131,7 @@ class LocationManager: NSObject, ObservableObject {
 
 }
 
-extension LocationManager: CLLocationManagerDelegate {
+extension LocationService: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         currentLocation = locations.first?.coordinate

@@ -8,7 +8,7 @@
 import Foundation
 import CoreLocation
 
-struct CoffeeShop: Codable, Identifiable {
+struct ShopDetail: Codable, Identifiable {
     
     //name
     let id: UUID
@@ -86,12 +86,40 @@ struct CoffeeShop: Codable, Identifiable {
     }
 }
 
-struct EnrichedCoffeeShop: Identifiable {
+struct Shop: Identifiable, Codable {
     
-    let details: CoffeeShop
+    let details: ShopDetail
     let distance: CLLocationDistance?
     let travelTime: TimeInterval?
     let isCalculating: Bool
     
     var id: UUID { details.id }
+    
+    enum CodingKeys: String, CodingKey {
+        case details, distance, travelTime, isCalculating
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(details, forKey: .details)
+        try container.encodeIfPresent(distance, forKey: .distance)
+        try container.encodeIfPresent(travelTime, forKey: .travelTime)
+        try container.encode(isCalculating, forKey: .isCalculating)
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        details = try container.decode(ShopDetail.self, forKey: .details)
+        distance = try container.decodeIfPresent(CLLocationDistance.self, forKey: .distance)
+        travelTime = try container.decodeIfPresent(TimeInterval.self, forKey: .travelTime)
+        isCalculating = try container.decode(Bool.self, forKey: .isCalculating)
+    }
+    
+    // Convenience initializer
+    init(details: ShopDetail, distance: CLLocationDistance?, travelTime: TimeInterval?, isCalculating: Bool) {
+        self.details = details
+        self.distance = distance
+        self.travelTime = travelTime
+        self.isCalculating = isCalculating
+    }
 }

@@ -9,16 +9,20 @@ import Foundation
 import Combine
 
 class ShopListViewModel: ObservableObject {
-    @Published var shops: [EnrichedCoffeeShop] = []
+    
+    @Published var shops: [Shop] = []
     @Published var isLoading = false
     @Published var error: Error?
     @Published var showEmptyState = false
     
-    private let shopRepository = CoffeeShopRepository()
+    var shopRepository: ShopRepository
     private var cancellables = Set<AnyCancellable>()
     
-    init() {
-        shopRepository.$enrichedCoffeeShops
+    init(shopRepository: ShopRepository) {
+        
+        self.shopRepository = shopRepository
+        
+        shopRepository.$shops
             .receive(on: DispatchQueue.main)
             .sink { [weak self] loadingState in
                 switch loadingState {
@@ -43,7 +47,7 @@ class ShopListViewModel: ObservableObject {
     func loadShops(forceRefresh: Bool = false) {
         
         Task {
-            await shopRepository.loadEnrichedShops(forceRefresh: forceRefresh)
+            await shopRepository.loadShops(forceRefresh: forceRefresh)
         }
     }
     

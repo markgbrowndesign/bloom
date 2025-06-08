@@ -7,31 +7,31 @@
 
 import SwiftUI
 
-struct ListView: View {
+struct ShopListView: View {
     
-    @StateObject private var viewModel = ShopListViewModel()
-    @State private var showingErrorAlert = false
+    @EnvironmentObject var shopRepository: ShopRepository
     
     var body: some View {
         NavigationStack {
             Group {
-                if viewModel.isLoading && viewModel.shops.isEmpty {
+                switch shopRepository.shops {
+                case .idle, .loading:
                     LoaderView(message: "Finding nearby coffee shops")
-                } else if viewModel.showEmptyState {
+                case .loaded(let shops) where shops.isEmpty:
                     EmptyState(
                         title: "No Coffee Shops Found",
                         subtitle: "There were no coffee shops for the criteria you selected",
                         actionTitle: "Retry",
-                        action: { viewModel.refreshShops() }
+                        action: { Task { await shopRepository.refreshWithLocation() } }
                     )
-                } else if let error = viewModel.error {
+                case .loaded(let shops):
+                    CoffeeShopList(shops: shops)
+                case .failed(let error):
                     ErrorView(
                         error: error,
                         actionLabel: "Retry",
-                        action: { viewModel.refreshShops() }
+                        action: { Task { await shopRepository.refreshWithLocation() } }
                     )
-                } else {
-                    CoffeeShopList
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -44,20 +44,25 @@ struct ListView: View {
                 }
             }
             .task {
-                if viewModel.shops.isEmpty {
-                    viewModel.loadShops()
+                if case .idle = shopRepository.shops {
+                    await shopRepository.loadShops()
                 }
             }
             .refreshable {
-                viewModel.refreshShops()
+                await shopRepository.refreshWithLocation()
             }
         }
     }
+}
+
+struct CoffeeShopList: View {
     
-    var CoffeeShopList: some View {
+    let shops: [Shop]
+    
+    var body: some View {
         List {
             Section {
-                ForEach(viewModel.shops, id: \.id) { shop in
+                ForEach(shops, id: \.id) { shop in
                     NavigationLink (destination: CoffeeShopView(shopId: shop.id)) {
                         ShopListItemView(enrichedShop: shop)
                     }
@@ -88,5 +93,5 @@ struct ListView: View {
 }
 
 #Preview {
-    ListView()
+    ShopListView()
 }

@@ -6,16 +6,23 @@
 //
 
 import SwiftUI
+import CoreLocation
 
 struct ContentView: View {
     
     // Create a single instance that persists across the app
-    @StateObject private var locationManager = LocationManager()
+    @StateObject private var locationService = LocationService()
+    @StateObject private var shopRepository: ShopRepository
     
     init() {
-      // Large Navigation Title
+        
+        //initalise repository with location service
+        let locationService = LocationService()
+        self._locationService = StateObject(wrappedValue: locationService)
+        self._shopRepository = StateObject(wrappedValue: ShopRepository(locationService: locationService))
+        
+      // Navigation bar styling
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(hex: "#F2E1CAFF") ?? UIColor.green]
-      // Inline Navigation Title
         UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(hex: "#F2E1CAFF") ?? UIColor.white]
         UINavigationBar.appearance().barTintColor = UIColor(hex: "#1A0D08FF") ?? UIColor.white
     }
@@ -23,21 +30,23 @@ struct ContentView: View {
     var body: some View {
         TabView {
             // Home/Discovery Tab
-            ListView()
-            .tabItem {
-                Image(systemName: "house")
-                Text("Discover")
-            }
-            .toolbarBackground(Theme.primaryBackground, for: .tabBar)
+            ShopListView()
+                .environmentObject(shopRepository)
+                .tabItem {
+                    Image(systemName: "house")
+                    Text("Discover")
+                }
+                .toolbarBackground(Theme.primaryBackground, for: .tabBar)
                 
             // List Tab
-            ListView()
-            .foregroundStyle(Theme.textPrimary)
-            .tabItem {
-                Image(systemName: "list.bullet")
-                Text("List")
-            }
-            .toolbarBackground(Theme.primaryBackground, for: .tabBar)
+            ShopListView()
+                .environmentObject(shopRepository)
+                .foregroundStyle(Theme.textPrimary)
+                .tabItem {
+                    Image(systemName: "list.bullet")
+                    Text("List")
+                }
+                .toolbarBackground(Theme.primaryBackground, for: .tabBar)
         
             // Profile Tab
             NavigationStack {
@@ -55,11 +64,27 @@ struct ContentView: View {
         .tint(Theme.textButton)
         .onAppear {
             // Trigger location request when app appears
-            if locationManager.authorizationStatus == .notDetermined {
-                print("🚀 App appeared, requesting location permission...")
-                locationManager.requestLocationPermission()
+            if locationService.authorizationStatus == .notDetermined {
+                locationService.requestLocationPermission()
             }
         }
+//          TODO: Fix location change update
+//        .onChange(of: locationService.currentLocation) { oldLocation, newLocation in
+//            if let old = oldLocation, let new = newLocation {
+//                let oldCoordinate = CLLocation(latitude: old.latitude, longitude: old.longitude)
+//                let newCoordinate = CLLocation(latitude: new.latitude, longitude: new.longitude)
+//                if oldCoordinate.distance(from: newCoordinate) > 500 { // 500m threshold
+//                    Task {
+//                        await shopRepository.refreshWithLocation()
+//                    }
+//                }
+//            } else if newLocation != nil && oldLocation == nil {
+//                // First time getting location
+//                Task {
+//                    await shopRepository.refreshWithLocation()
+//                }
+//            }
+//        }
     }
 }
 

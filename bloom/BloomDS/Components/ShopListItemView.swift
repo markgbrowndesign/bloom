@@ -50,7 +50,7 @@ struct ShopListItemLargeView: View {
 
 struct ShopListItemView: View {
     
-    let enrichedShop :EnrichedCoffeeShop
+    let enrichedShop :Shop
     
     var body: some View {
         HStack(spacing: 16) {

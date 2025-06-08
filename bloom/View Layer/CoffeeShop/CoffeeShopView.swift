@@ -12,10 +12,17 @@ import MapKit
 struct CoffeeShopView: View {
     
     let shopId: UUID
+    
+    @EnvironmentObject var shopReposiory: ShopRepository
+    
     @StateObject private var viewModel = CoffeeShopViewModel()
     @State private var showingErrorAlert = false
     
     @State private var showFullDescription = false
+    
+    init(shopId: UUID) {
+        self.shopId = shopId
+    }
 
     var body: some View {
         NavigationStack{
@@ -24,7 +31,6 @@ struct CoffeeShopView: View {
                     LoaderView(message: "Loading shop details...")
                 } else if viewModel.shop != nil {
                     ShopDetailContent
-
                 } else if viewModel.error != nil {
                     EmptyState(
                         title: "Failed to Load",
@@ -38,9 +44,12 @@ struct CoffeeShopView: View {
             .task {
                 viewModel.loadShop(shopId: shopId)
             }
+            .onAppear {
+                viewModel.setupDependencies(shopRepository: shopReposiory)
+            }
+            .ignoresSafeArea(.container, edges: .vertical)
+            .background(Theme.primaryBackground)
         }
-        .ignoresSafeArea(.container, edges: .vertical)
-        .background(Theme.primaryBackground)
     }
     
     var ShopDetailContent: some View {
@@ -49,13 +58,13 @@ struct CoffeeShopView: View {
                     VStack (spacing: 0) {
                         HeaderView(headerImage: "coffee_shop_background", logoImage: "shop_logo")
                         VStack(spacing: 24) {
-                            TitleView(shop: shop, travelTime: viewModel.travelTime)
+                            TitleView(shop: shop)
                             ButtonsGroupView(onDirectionsTap: { viewModel.onTapDirections() }, onNoteTap: {}, onFavoriteTap: {}, onUpvoteTap: {})
-                            if shop.longDescription != nil {
-                                TruncatableText(text: shop.longDescription ?? "")
+                            if shop.details.longDescription != nil {
+                                TruncatableText(text: shop.details.longDescription ?? "")
                             }
-                            CafeDetailsView(shop: shop)
-                            BottomText(shop: shop)
+                            CafeDetailsView(shop: shop.details)
+                            BottomText(shop: shop.details)
                         }
                         .padding(.bottom, 120)
                     }
@@ -110,27 +119,41 @@ struct HeaderView: View {
 
 struct TitleView: View {
     
-    let shop: CoffeeShop
-    let travelTime: TimeInterval?
+    let shop: Shop
     
     var body: some View {
         VStack {
-            Text(shop.name)
+            Text(shop.details.name)
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .foregroundColor(Theme.textPrimary)
                 .padding(.bottom, 4)
             
-            HStack {
+            HStack(spacing: 4) {
                 //TODO: add if viewModel.isLoading
-                Text(shop.addressArea)
+                Text(shop.details.addressArea)
                 Text("•")
-                Text("5 min")
+                Text(formatDistance(shop.distance ?? 1.2) + " away")
             }
             .foregroundStyle(Theme.textSecondary)
             .font(.subheadline)
         }
         .frame(maxWidth: .infinity)
+    }
+    func formatDistance(_ distance: Double, unit: MeaurementUnit = .metric) -> String {
+        switch unit {
+        case .metric:
+         let km = distance / 1000.0
+         return km < 10 ? String(format: "%.1fkm", km) : String(format: "%.0fkm", km)
+        case .imperial:
+         let formatter = MeasurementFormatter()
+         formatter.unitOptions = .naturalScale
+         formatter.numberFormatter.maximumFractionDigits = 1
+         formatter.locale = Locale(identifier: "en_US") // Force imperial
+         
+         let meters = Measurement(value: distance, unit: UnitLength.meters)
+         return formatter.string(from: meters)
+        }
     }
 }
 
@@ -195,7 +218,7 @@ struct AddressView: View {
 }
 
 struct CafeDetailsView: View {
-    var shop: CoffeeShop
+    var shop: ShopDetail
     
     var body: some View {
         
@@ -244,7 +267,7 @@ struct CafeDetailsView: View {
 
 struct BottomText: View {
     
-    let shop: CoffeeShop
+    let shop: ShopDetail
     
     var body: some View {
         VStack(alignment: .center, spacing: 4) {
