@@ -50,7 +50,7 @@ struct ShopListItemLargeView: View {
 
 struct ShopListItemView: View {
     
-    let enrichedShop :Shop
+    let shop: CoffeeShop
     
     var body: some View {
         HStack(spacing: 16) {
@@ -60,49 +60,20 @@ struct ShopListItemView: View {
                 .clipShape(.rect(cornerRadius: 8))
             
             VStack(alignment: .leading) {
-                Text(enrichedShop.details.name)
+                Text(shop.name)
                     .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundColor(Theme.textPrimary)
                     
                 HStack(spacing: 4) {
-                    Text(enrichedShop.details.addressArea)
+                    Text(shop.addressArea)
                     
-                    if let distance = enrichedShop.distance {
+                    if let distance = shop.distanceMeters {
                         Text("•")
-                        Text(formatDistance(distance))
+                        Text("distance")
                     }
                 }
             }
         }
-    }
-    
-    func formatDistance(_ distance: Double, unit: MeaurementUnit = .metric) -> String {
-        switch unit {
-        case .metric:
-            let km = distance / 1000.0
-            return km < 10 ? String(format: "%.1fkm", km) : String(format: "%.0fkm", km)
-        case .imperial:
-            let formatter = MeasurementFormatter()
-            formatter.unitOptions = .naturalScale
-            formatter.numberFormatter.maximumFractionDigits = 1
-            formatter.locale = Locale(identifier: "en_US") // Force imperial
-            
-            let meters = Measurement(value: distance, unit: UnitLength.meters)
-            return formatter.string(from: meters)
-        }
-    }
-    
-    func formatTime(_ timeInterval: TimeInterval) -> String {
-        
-        let hours = Int(timeInterval) / 3600
-        let minutes = Int(timeInterval) % 3600 / 60
-        
-        if hours > 0 {
-            return "\(hours)h \(minutes)m"
-        } else {
-            return "\(minutes) min"
-        }
-        
     }
 }
