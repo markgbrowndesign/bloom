@@ -19,6 +19,21 @@ class APIService: ObservableObject {
         return data
     }
     
+    func fetchNearbyShops(latitude: Double, longitude: Double, maxResults: Double = 20) async throws -> [CoffeeShop] {
+        let data: [CoffeeShop] = try await supabase
+            .rpc("nearby_coffee_shops", params: [
+                "user_lat": latitude,
+                "user_long": longitude,
+                "max_results": maxResults
+            ])
+            .execute()
+            .value
+        
+        print("Returned from function: \(data)")
+        
+        return data
+    }
+    
     func fetchShopWith(id: UUID) async throws -> CoffeeShop? {
         print("get shop with id: \(id)")
         

@@ -25,6 +25,7 @@ struct CoffeeShop: Codable, Identifiable {
     //coodinates
     let coordinatesLongitude: Double?
     let coordinatesLatitude: Double?
+    let distanceMeters: Double?
     
     //equipment
     let coffeeServed: String?
@@ -62,6 +63,7 @@ struct CoffeeShop: Codable, Identifiable {
         case coordinatesLatitude = "coordinates_lat"
         case addressFirstLine = "address_line_1"
         case addressSecondLine = "address_line_2"
+        case distanceMeters = "distance_meters"
         
         case coffeeServed = "coffee_served"
         case equipmentGrinder = "equipment_grinder"

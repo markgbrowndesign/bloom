@@ -24,10 +24,6 @@ struct CoffeeShopView: View {
                     LoaderView(message: "Loading shop details...")
                 } else if viewModel.shop != nil {
                     ShopDetailContent
-                        .task {
-                            viewModel.calculateTravelTime()
-                        }
-
                 } else if viewModel.error != nil {
                     EmptyState(
                         title: "Failed to Load",

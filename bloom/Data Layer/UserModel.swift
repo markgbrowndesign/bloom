@@ -14,7 +14,7 @@ struct Profile: Codable, Identifiable, Hashable {
     var username: String
     
     var preferredTravelMethod: TravelMethod
-    var measurementUnit: MeaurementUnit
+    var measurementUnit: MeasurementUnit
     
     var imageURL: String?
     var updatedAt: String?
@@ -43,7 +43,7 @@ enum TravelMethod: String, CaseIterable, Codable {
     
 }
 
-enum MeaurementUnit: String, CaseIterable, Codable {
+enum MeasurementUnit: String, CaseIterable, Codable {
     
     case metric
     case imperial

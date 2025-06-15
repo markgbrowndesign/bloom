@@ -18,7 +18,7 @@ class ShopListViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     init() {
-        shopRepository.$coffeeShops
+        shopRepository.$shops
             .receive(on: DispatchQueue.main)
             .sink { [weak self] loadingState in
                 switch loadingState {

@@ -10,22 +10,73 @@ import Foundation
 class CoffeeShopRepository: ObservableObject {
     private let apiService = APIService()
     private let cacheManager = CacheManager()
+    private let locationManager = LocationManager()
     
-    @Published var coffeeShops: LoadingState<[CoffeeShop]> = .idle
+    @Published var shops: LoadingState<[CoffeeShop]> = .idle
     @Published var shopDetails: [UUID: LoadingState<CoffeeShop>] = [:]
-        
+    
     func loadShops(forceRefresh: Bool = false) async {
-        await MainActor.run {
-            coffeeShops = .loading
+        
+        switch locationManager.authorizationStatus {
+        case .authorizedAlways, .authorizedWhenInUse:
+            await loadNeabyShops(forceRefresh: forceRefresh)
+        case .notDetermined, .denied, .restricted :
+            await loadAllShops(forceRefresh: forceRefresh)
+        default:
+            await loadAllShops(forceRefresh: forceRefresh)
         }
         
+    }
+        
+    func loadNeabyShops(forceRefresh: Bool = false) async {
+        await MainActor.run {
+            shops = .loading
+        }
+        
+        print("loading nearby")
+        
+        guard let currentLocation = locationManager.currentLocation else {
+            await loadShops(forceRefresh: forceRefresh)
+            return
+        }
+        
+        let cacheKey = "coffee_shops_\(currentLocation.latitude)_\(currentLocation.longitude)"
+        
+        if !forceRefresh,
+           cacheManager.isCacheValid(forKey: cacheKey, maxAge: 1800),
+           let cachedShops = cacheManager.load([CoffeeShop].self, forKey: cacheKey) {
+            await MainActor.run {
+                shops = .loaded(cachedShops)
+            }
+            return
+        }
+        
+        do {
+            let nearbyShops = try await apiService.fetchNearbyShops(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
+            
+            cacheManager.save(nearbyShops, forKey: cacheKey)
+            
+            await MainActor.run {
+                self.shops = .loaded(nearbyShops)
+            }
+        } catch {
+            await MainActor.run {
+                self.shops = .failed(error)
+            }
+        }
+    }
+    func loadAllShops(forceRefresh: Bool = false) async {
+        await MainActor.run {
+            self.shops = .loading
+        }
+        print("loading all")
         let cacheKey = "coffee_shops"
             
         if !forceRefresh,
            cacheManager.isCacheValid(forKey: cacheKey, maxAge: 300),
            let cachedShops = cacheManager.load([CoffeeShop].self, forKey: cacheKey) {
             await MainActor.run {
-                coffeeShops = .loaded(cachedShops)
+                self.shops = .loaded(cachedShops)
             }
             return
         }
@@ -34,11 +85,11 @@ class CoffeeShopRepository: ObservableObject {
             let shops = try await apiService.fetchShops()
             cacheManager.save(shops, forKey: cacheKey)
             await MainActor.run {
-                coffeeShops = .loaded(shops)
+                self.shops = .loaded(shops)
             }
         } catch {
             await MainActor.run {
-                coffeeShops = .failed(error)
+                self.shops = .failed(error)
             }
         }
     }
