@@ -43,7 +43,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"config/app-config.xcconfig",
-				Info.plist,
 			);
 			target = 416550892DD0C7E2001AD4EE /* bloom */;
 		};
