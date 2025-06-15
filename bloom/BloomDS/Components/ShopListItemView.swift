@@ -9,35 +9,34 @@ import SwiftUI
 
 struct ShopListItemLargeView: View {
     
-    let shopName: String
-    let shopLogoSource: String
-    let shopHeaderSource: String
-    let shopDistance: String
-    let shopTravelTime: String
-    let shopDescription: String
+    let shop: CoffeeShop
     
     var body: some View {
         VStack() {
-            Image(shopHeaderSource)
+            Image("coffee_shop_background")
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: .infinity, height: 192, alignment: .center)
                 .clipped()
             
             VStack(alignment: .leading, spacing: 4){
-                Text(shopName)
+                Text(shop.name)
                     .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundStyle(Theme.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
                 HStack {
-                    Text(shopDistance)
-                    Text("•")
-                    Text(shopTravelTime)
+                    Text(shop.addressArea)
+                    if let distance = shop.distanceMeters {
+                        Text("•")
+                        Text(distance.formatAsDistance())
+                    }
                 }
-                
-                Text(shopDescription)
+                if let description = shop.longDescription {
+                    Text(description)
+                        .truncationMode(.tail)
+                }
                 
             }
             .padding(.horizontal, 16)
@@ -70,7 +69,7 @@ struct ShopListItemView: View {
                     
                     if let distance = shop.distanceMeters {
                         Text("•")
-                        Text("distance")
+                        Text(distance.formatAsDistance())
                     }
                 }
             }

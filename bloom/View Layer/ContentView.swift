@@ -30,13 +30,15 @@ struct ContentView: View {
     var body: some View {
         TabView {
             // Home/Discovery Tab
-            ShopListView()
-                .environmentObject(shopRepository)
-                .tabItem {
-                    Image(systemName: "house")
-                    Text("Discover")
-                }
-                .toolbarBackground(Theme.primaryBackground, for: .tabBar)
+            NavigationStack {
+                DiscoverView(shopRepository: shopRepository)
+            }
+            .tabItem {
+                Image(systemName: "house")
+                Text("Discover")
+            }
+            .toolbarBackground(Theme.primaryBackground, for: .tabBar)
+            .navigationTitle("Bloom")
                 
             // List Tab
             ShopListView()
@@ -68,23 +70,6 @@ struct ContentView: View {
                 locationService.requestLocationPermission()
             }
         }
-//          TODO: Fix location change update
-//        .onChange(of: locationService.currentLocation) { oldLocation, newLocation in
-//            if let old = oldLocation, let new = newLocation {
-//                let oldCoordinate = CLLocation(latitude: old.latitude, longitude: old.longitude)
-//                let newCoordinate = CLLocation(latitude: new.latitude, longitude: new.longitude)
-//                if oldCoordinate.distance(from: newCoordinate) > 500 { // 500m threshold
-//                    Task {
-//                        await shopRepository.refreshWithLocation()
-//                    }
-//                }
-//            } else if newLocation != nil && oldLocation == nil {
-//                // First time getting location
-//                Task {
-//                    await shopRepository.refreshWithLocation()
-//                }
-//            }
-//        }
     }
 }
 

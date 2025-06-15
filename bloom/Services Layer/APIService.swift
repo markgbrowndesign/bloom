@@ -8,7 +8,7 @@
 import Foundation
 import Supabase
 
-class APIService: ObservableObject {
+class APIService {
     
     func fetchShops() async throws -> [CoffeeShop] {
         let data: [CoffeeShop] = try await supabase
@@ -28,15 +28,10 @@ class APIService: ObservableObject {
             ])
             .execute()
             .value
-        
-        print("Returned from function: \(data)")
-        
         return data
     }
     
     func fetchShopWith(id: UUID) async throws -> CoffeeShop? {
-        print("get shop with id: \(id)")
-        
         let data: CoffeeShop = try await supabase
             .from("coffee_shop")
             .select()
@@ -44,15 +39,10 @@ class APIService: ObservableObject {
             .single()
             .execute()
             .value
-        
-        print(data)
         return data
     }
     
     func fetchUserWith(id: UUID) async throws -> Profile? {
-        
-        print("id \(id)")
-        
         let data: Profile = try await supabase
             .from("profiles")
             .select()
@@ -60,8 +50,6 @@ class APIService: ObservableObject {
             .single()
             .execute()
             .value
-        
-        print("data: \(data)")
         return data
     }
     

@@ -33,8 +33,6 @@ class CoffeeShopRepository: ObservableObject {
             shops = .loading
         }
         
-        print("loading nearby")
-        
         guard let currentLocation = locationManager.currentLocation else {
             await loadShops(forceRefresh: forceRefresh)
             return
@@ -69,7 +67,7 @@ class CoffeeShopRepository: ObservableObject {
         await MainActor.run {
             self.shops = .loading
         }
-        print("loading all")
+
         let cacheKey = "coffee_shops"
             
         if !forceRefresh,
