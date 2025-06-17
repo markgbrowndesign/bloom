@@ -109,7 +109,7 @@ struct HeaderView: View {
 
 struct TitleView: View {
     
-    let shop: CoffeeShop
+    let shop: Shop
     let travelTime: TimeInterval?
     
     var body: some View {
@@ -207,7 +207,7 @@ struct AddressView: View {
 }
 
 struct CafeDetailsView: View {
-    var shop: CoffeeShop
+    var shop: Shop
     
     var body: some View {
         
@@ -256,7 +256,7 @@ struct CafeDetailsView: View {
 
 struct BottomText: View {
     
-    let shop: CoffeeShop
+    let shop: Shop
     
     var body: some View {
         VStack(alignment: .center, spacing: 4) {

@@ -57,7 +57,7 @@ struct ShopListView: View {
 
 struct CoffeeShopList: View {
     
-    let shops: [CoffeeShop]
+    let shops: [Shop]
     
     var body: some View {
         List {

@@ -7,58 +7,52 @@
 
 import Foundation
 import Observation
-import Combine
 
 @Observable
 class DiscoverViewModel {
     
-    var closestShop: CoffeeShop?
-    var shops: [CoffeeShop] = []
+    var closestShop: Shop?
+    var shops: [Shop] = []
     var isLoading = false
     var error: Error?
     
-    private let shopRepository: CoffeeShopRepository
-    private var cancellables = Set<AnyCancellable>()
+    private let shopService: ShopService
     
-    init(shopRepository: CoffeeShopRepository) {
-        self.shopRepository = shopRepository
-        setupBindings()
+    var hasShops: Bool {
+        closestShop != nil || !shops.isEmpty
     }
     
-    // MARK: - Private Methods
-    private func setupBindings() {
-        // Note: We still use Combine here because we're observing the old-style ShopRepository
-        // This will be cleaned up when we migrate ShopRepository later
-        shopRepository.$shops
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] loadingState in
-                self?.handleShopsUpdate(loadingState)
+    init(shopService: ShopService) {
+        self.shopService = shopService
+    }
+    
+    func loadContent() async {
+        
+        isLoading = true
+        error = nil
+        
+        do {
+            let shops = try await shopService.loadShops()
+            await MainActor.run {
+                updateContent(with: shops)
+                isLoading = false
             }
-            .store(in: &cancellables)
-    }
-    private func handleShopsUpdate(_ loadingState: LoadingState<[CoffeeShop]>) {
-        switch loadingState {
-        case .idle:
-            isLoading = false
-            
-        case .loading:
-            isLoading = true
-            error = nil
-            
-        case .loaded(let shops):
-            isLoading = false
-            error = nil
-            updateDiscoverContent(with: shops)
-            
-        case .failed(let error):
-            isLoading = false
-            self.error = error
-            closestShop = nil
-            shops = []
+        } catch {
+            await MainActor.run {
+                self.error = error
+                print("error from load content")
+                isLoading = false
+            }
         }
     }
     
-    private func updateDiscoverContent(with shops: [CoffeeShop]) {
+    func refresh() async {
+        await loadContent()
+    }
+    
+    // MARK: - Private Methods
+    
+    private func updateContent(with shops: [Shop]) {
         // Extract first 5 shops
         let discoverShops = Array(shops.prefix(5))
         
@@ -69,15 +63,4 @@ class DiscoverViewModel {
         self.shops = Array(discoverShops.dropFirst().prefix(4))
     }
     
-    func loadContent() {
-        Task {
-            await shopRepository.loadShops()
-        }
-    }
-    
-    func refreshContent() {
-        Task {
-            await shopRepository.loadShops(forceRefresh: true)
-        }
-    }
 }

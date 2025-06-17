@@ -12,14 +12,14 @@ import MapKit
     
 class CoffeeShopViewModel: ObservableObject {
     
-    @Published var shop: CoffeeShop?
+    @Published var shop: Shop?
     @Published var isLoading = false
     @Published var error: Error?
     @Published var travelTime: TimeInterval?
     
     private let repository = CoffeeShopRepository()
     private var cancellable = Set<AnyCancellable>()
-    private let locationManager = LocationManager()
+    private let locationManager = LocationService()
     
     func loadShop(shopId: UUID, forceRefresh: Bool = false) {
 

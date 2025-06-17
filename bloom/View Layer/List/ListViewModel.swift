@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 class ShopListViewModel: ObservableObject {
-    @Published var shops: [CoffeeShop] = []
+    @Published var shops: [Shop] = []
     @Published var isLoading = false
     @Published var error: Error?
     @Published var showEmptyState = false

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct CoffeeShop: Codable, Identifiable {
+struct Shop: Codable, Identifiable {
     
     //name
     let id: UUID

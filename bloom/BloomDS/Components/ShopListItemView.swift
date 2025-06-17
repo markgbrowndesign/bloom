@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ShopListItemLargeView: View {
     
-    let shop: CoffeeShop
+    let shop: Shop
     
     var body: some View {
         VStack() {
@@ -49,7 +49,7 @@ struct ShopListItemLargeView: View {
 
 struct ShopListItemView: View {
     
-    let shop: CoffeeShop
+    let shop: Shop
     
     var body: some View {
         HStack(spacing: 16) {

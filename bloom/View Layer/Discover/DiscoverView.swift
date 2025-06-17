@@ -11,11 +11,50 @@ struct DiscoverView: View {
     
     @State private var viewModel: DiscoverViewModel
     
-    init(shopRepository: CoffeeShopRepository) {
-        self._viewModel = State(wrappedValue: DiscoverViewModel(shopRepository: shopRepository))
+    init(shopService: ShopService) {
+        self._viewModel = State(wrappedValue: DiscoverViewModel(shopService: shopService))
     }
     
     var body: some View {
+        
+        NavigationStack {
+            Group {
+                if viewModel.isLoading {
+                    LoaderView(message: "Finding coffee...")
+                } else if let error = viewModel.error {
+                    ErrorView(
+                        error: error,
+                        actionLabel: "Try again",
+                        action: {
+                            Task { await viewModel.refresh() }
+                        }
+                    )
+                } else if viewModel.hasShops {
+                    DiscoverContentView
+                } else {
+                    EmptyDiscoverView
+                }
+            }
+            .navigationTitle("Bloom")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    IconButton(icon: "arrow.clockwise") {
+                        Task { await viewModel.refresh() }
+                    }
+                }
+            }
+        }
+        .task {
+            await viewModel.loadContent()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea(.container, edges: .vertical)
+        .background(Theme.primaryBackground)
+    }
+    
+    @ViewBuilder
+    private var DiscoverContentView: some View {
+    
         List {
             if let closestShop = viewModel.closestShop {
                 Section {
@@ -43,14 +82,12 @@ struct DiscoverView: View {
             .listRowBackground(Theme.sectionBackground)
             .listRowSeparatorTint(Theme.textPrimary.opacity(0.25))
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-        .scrollContentBackground(.hidden)
         .background(Theme.primaryBackground)
-        .task {
-            viewModel.loadContent()
-        }
-        .refreshable {
-            viewModel.refreshContent()
-        }
     }
+    
+    @ViewBuilder
+    private var EmptyDiscoverView: some View {
+        Text("empty")
+    }
+    
 }

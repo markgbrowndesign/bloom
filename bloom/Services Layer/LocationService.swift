@@ -9,7 +9,7 @@ import Swift
 import CoreLocation
 import MapKit
 
-class LocationManager: NSObject, ObservableObject {
+class LocationService: NSObject, ObservableObject {
 
     private let service = CLLocationManager()
     
@@ -48,7 +48,7 @@ class LocationManager: NSObject, ObservableObject {
     
 }
 
-extension LocationManager: CLLocationManagerDelegate {
+extension LocationService: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         currentLocation = locations.first?.coordinate

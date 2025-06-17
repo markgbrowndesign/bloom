@@ -10,8 +10,8 @@ import Supabase
 
 class APIService {
     
-    func fetchShops() async throws -> [CoffeeShop] {
-        let data: [CoffeeShop] = try await supabase
+    func fetchShops() async throws -> [Shop] {
+        let data: [Shop] = try await supabase
             .from("coffee_shop")
             .select("id, shop_name, address_area")
             .execute()
@@ -19,20 +19,29 @@ class APIService {
         return data
     }
     
-    func fetchNearbyShops(latitude: Double, longitude: Double, maxResults: Double = 20) async throws -> [CoffeeShop] {
-        let data: [CoffeeShop] = try await supabase
-            .rpc("nearby_coffee_shops", params: [
-                "user_lat": latitude,
-                "user_long": longitude,
-                "max_results": maxResults
-            ])
-            .execute()
-            .value
-        return data
+    func fetchNearbyShops(latitude: Double, longitude: Double, maxResults: Double = 20) async throws -> [Shop] {
+        
+        print("Lat: \(latitude), Long: \(longitude), max: \(maxResults)")
+        
+        do {
+            let data: [Shop] = try await supabase
+                .rpc("nearby_coffee_shops", params: [
+                    "user_lat": latitude,
+                    "user_long": longitude,
+                    "max_results": maxResults
+                ])
+                .execute()
+                .value
+            
+            return data
+        } catch {
+            print("throwing from here")
+            throw error
+        }
     }
     
-    func fetchShopWith(id: UUID) async throws -> CoffeeShop? {
-        let data: CoffeeShop = try await supabase
+    func fetchShopWith(id: UUID) async throws -> Shop? {
+        let data: Shop = try await supabase
             .from("coffee_shop")
             .select()
             .eq("id", value: id.uuidString)

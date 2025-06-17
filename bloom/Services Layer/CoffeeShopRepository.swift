@@ -10,10 +10,10 @@ import Foundation
 class CoffeeShopRepository: ObservableObject {
     private let apiService = APIService()
     private let cacheManager = CacheManager()
-    private let locationManager = LocationManager()
+    private let locationManager = LocationService()
     
-    @Published var shops: LoadingState<[CoffeeShop]> = .idle
-    @Published var shopDetails: [UUID: LoadingState<CoffeeShop>] = [:]
+    @Published var shops: LoadingState<[Shop]> = .idle
+    @Published var shopDetails: [UUID: LoadingState<Shop>] = [:]
     
     func loadShops(forceRefresh: Bool = false) async {
         
@@ -42,7 +42,7 @@ class CoffeeShopRepository: ObservableObject {
         
         if !forceRefresh,
            cacheManager.isCacheValid(forKey: cacheKey, maxAge: 1800),
-           let cachedShops = cacheManager.load([CoffeeShop].self, forKey: cacheKey) {
+           let cachedShops = cacheManager.load([Shop].self, forKey: cacheKey) {
             await MainActor.run {
                 shops = .loaded(cachedShops)
             }
@@ -72,7 +72,7 @@ class CoffeeShopRepository: ObservableObject {
             
         if !forceRefresh,
            cacheManager.isCacheValid(forKey: cacheKey, maxAge: 300),
-           let cachedShops = cacheManager.load([CoffeeShop].self, forKey: cacheKey) {
+           let cachedShops = cacheManager.load([Shop].self, forKey: cacheKey) {
             await MainActor.run {
                 self.shops = .loaded(cachedShops)
             }
@@ -101,7 +101,7 @@ class CoffeeShopRepository: ObservableObject {
         
         if !forceRefresh,
            cacheManager.isCacheValid(forKey: cacheKey, maxAge: 600),
-           let cachedShop = cacheManager.load(CoffeeShop.self, forKey: cacheKey) {
+           let cachedShop = cacheManager.load(Shop.self, forKey: cacheKey) {
             await MainActor.run {
                 shopDetails[shopId] = .loaded(cachedShop)
             }

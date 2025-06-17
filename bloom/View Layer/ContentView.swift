@@ -11,15 +11,18 @@ import CoreLocation
 struct ContentView: View {
     
     // Create a single instance that persists across the app
-    @StateObject private var locationService = LocationManager()
+    @StateObject private var locationService = LocationService()
     @StateObject private var shopRepository: CoffeeShopRepository
+    
+    @State private var shopService: ShopService
     
     init() {
         
         //initalise repository with location service
-        let locationService = LocationManager()
+        let locationService = LocationService()
         self._locationService = StateObject(wrappedValue: locationService)
         self._shopRepository = StateObject(wrappedValue: CoffeeShopRepository())
+        self._shopService = State(wrappedValue: ShopService(locationService: locationService))
         
       // Navigation bar styling
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(hex: "#F2E1CAFF") ?? UIColor.green]
@@ -30,15 +33,11 @@ struct ContentView: View {
     var body: some View {
         TabView {
             // Home/Discovery Tab
-            NavigationStack {
-                DiscoverView(shopRepository: shopRepository)
-            }
+            DiscoverView(shopService: shopService)
             .tabItem {
                 Image(systemName: "house")
                 Text("Discover")
             }
-            .toolbarBackground(Theme.primaryBackground, for: .tabBar)
-            .navigationTitle("Bloom")
                 
             // List Tab
             ShopListView()
