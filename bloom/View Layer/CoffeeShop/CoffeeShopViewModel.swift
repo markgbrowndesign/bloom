@@ -19,7 +19,6 @@ class CoffeeShopViewModel: ObservableObject {
     
     private let repository = CoffeeShopRepository()
     private var cancellable = Set<AnyCancellable>()
-    private let locationManager = LocationService()
     
     func loadShop(shopId: UUID, forceRefresh: Bool = false) {
 

@@ -10,22 +10,18 @@ import Foundation
 @MainActor
 class ShopService: ObservableObject {
     
-    private let locationService: LocationService
+    //private let locationService: LocationService
     private let apiService = APIService()
     
-    init(locationService: LocationService) {
-        self.locationService = locationService
-    }
-    
     func loadShops() async throws -> [Shop] {
-        guard let location = locationService.currentLocation else {
+        guard let location = LocationService.shared.currentLocation else {
             throw ShopServiceError.locationUnavalible
         }
         return try await apiService.fetchNearbyShops(latitude: location.latitude, longitude: location.longitude)
     }
     
     func refreshShops() async throws -> [Shop] {
-        locationService.requestCurrentLocation()
+        LocationService.shared.requestCurrentLocation()
         return try await loadShops()
     }
     

@@ -11,7 +11,6 @@ import CoreLocation
 struct ContentView: View {
     
     // Create a single instance that persists across the app
-    @StateObject private var locationService = LocationService()
     @StateObject private var shopRepository: CoffeeShopRepository
     
     @State private var shopService: ShopService
@@ -19,10 +18,8 @@ struct ContentView: View {
     init() {
         
         //initalise repository with location service
-        let locationService = LocationService()
-        self._locationService = StateObject(wrappedValue: locationService)
         self._shopRepository = StateObject(wrappedValue: CoffeeShopRepository())
-        self._shopService = State(wrappedValue: ShopService(locationService: locationService))
+        self._shopService = State(wrappedValue: ShopService())
         
       // Navigation bar styling
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(hex: "#F2E1CAFF") ?? UIColor.green]
@@ -65,8 +62,8 @@ struct ContentView: View {
         .tint(Theme.textButton)
         .onAppear {
             // Trigger location request when app appears
-            if locationService.authorizationStatus == .notDetermined {
-                locationService.requestLocationPermission()
+            if LocationService.shared.authorizationStatus == .notDetermined {
+                LocationService.shared.requestLocationPermission()
             }
         }
     }
