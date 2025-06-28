@@ -10,14 +10,18 @@ import Foundation
 class CoffeeShopRepository: ObservableObject {
     private let apiService = APIService()
     private let cacheManager = CacheManager()
-    private let locationManager = LocationService()
+    private let locationManager: LocationService
     
     @Published var shops: LoadingState<[Shop]> = .idle
     @Published var shopDetails: [UUID: LoadingState<Shop>] = [:]
     
+    init() {
+        locationManager = LocationService()
+    }
+    
     func loadShops(forceRefresh: Bool = false) async {
         
-        switch locationManager.authorizationStatus {
+        switch await locationManager.authorizationStatus {
         case .authorizedAlways, .authorizedWhenInUse:
             await loadNeabyShops(forceRefresh: forceRefresh)
         case .notDetermined, .denied, .restricted :
@@ -33,7 +37,7 @@ class CoffeeShopRepository: ObservableObject {
             shops = .loading
         }
         
-        guard let currentLocation = locationManager.currentLocation else {
+        guard let currentLocation = await locationManager.currentLocation else {
             await loadShops(forceRefresh: forceRefresh)
             return
         }

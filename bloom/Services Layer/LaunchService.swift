@@ -37,10 +37,19 @@ class LaunchService: ObservableObject {
     }
     
     private func getCurrentLocation() async {
+        
         let locationService = LocationService()
-        locationService.requestCurrentLocation()
-        //try? await Task.sleep(nanoseconds: 10_000_000_000)
-        print("currentLocation: \(locationService.currentLocation?.latitude ?? 0) - \(locationService.currentLocation?.longitude ?? 0)")
+        
+        do {
+            
+            locationService.requestLocation()
+            let currentLocation = try await locationService.requestCurrentLocation()
+            
+            print("currentLocationFromFunc: \(currentLocation.latitude) - \(currentLocation.longitude)")
+            print("currentLocationFromService: \(locationService.currentLocation?.latitude ?? 0) - \(locationService.currentLocation?.longitude ?? 0)")
+        } catch {
+            print("Error: \(error)")
+        }
     }
     
 }

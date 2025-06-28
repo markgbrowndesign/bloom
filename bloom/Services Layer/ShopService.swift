@@ -25,8 +25,9 @@ class ShopService: ObservableObject {
     }
     
     func refreshShops() async throws -> [Shop] {
-        locationService.requestCurrentLocation()
-        return try await loadShops()
+//        locationService.requestCurrentLocation()
+//        return try await loadShops()
+        return []
     }
     
     func getShopDetails(shopId: UUID) async throws -> Shop {
