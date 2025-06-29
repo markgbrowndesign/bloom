@@ -15,6 +15,7 @@ struct bloomApp: App {
     var body: some Scene {
         WindowGroup {
             AppRootView()
+                .background(Theme.primaryBackground)
                 .environmentObject(appState)
         }
     }

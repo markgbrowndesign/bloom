@@ -2,10 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>Bloom needs your location to find nearby coffee shops and calculate travel times.</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Bloom needs your location to find nearby coffee shops and calculate travel</string>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIImageName</key>
+		<string></string>
+		<key>UIColorName</key>
+		<string>launch_background</string>
+	</dict>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Bloom needs your location to find nearby coffee shops and calculate travel times.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Bloom needs your location to find nearby coffee shops and calculate travel</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

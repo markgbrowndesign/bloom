@@ -15,11 +15,8 @@ struct AppRootView: View {
         ZStack {
             switch appState.authState {
             case .checking:
-                //Splash view
-                Text("checking")
-                    .task {
-                        await appState.getAuthState()
-                    }
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .transition(.opacity)
             case .authenticated:
                 ContentView()
@@ -28,6 +25,9 @@ struct AppRootView: View {
                 AuthView()
                     .transition(.opacity)
             }
+        }
+        .task {
+            await appState.getAuthState()
         }
         .animation(.easeIn(duration: 0.5), value: appState.authState)
     }
