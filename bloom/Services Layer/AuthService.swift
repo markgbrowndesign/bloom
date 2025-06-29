@@ -13,23 +13,24 @@ class AuthService: ObservableObject {
     
     func getAuthState() async {
         
-//        for await state in supabase.auth.authStateChanges {
-//             if [.initialSession, .signedIn, .signedOut].contains(state.event) && state.session != nil {
-//                 await MainActor.run {
-//                     authState = .authenticated
-//                 }
-//             } else {
-//                 await MainActor.run {
-//                     authState = .unauthenticated
-//                 }
-//             }
-//         }
+        for await state in supabase.auth.authStateChanges {
+             if [.initialSession, .signedIn, .signedOut].contains(state.event) && state.session != nil {
+                 await MainActor.run {
+                     authState = .authenticated
+                 }
+             } else {
+                 await MainActor.run {
+                     authState = .unauthenticated
+                 }
+             }
+         }
         
-        try? await Task.sleep(nanoseconds: 2_000_000_000)
-        
-        await MainActor.run {
-            authState = .authenticated
-        }
+        // MARK: Use to mock different auth states
+//        try? await Task.sleep(nanoseconds: 2_000_000_000)
+//        
+//        await MainActor.run {
+//            authState = .authenticated
+//        }
     }
     
 }
