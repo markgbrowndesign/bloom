@@ -6,6 +6,17 @@
     <string>Bloom needs your location to find nearby coffee shops and calculate travel times.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>Bloom needs your location to find nearby coffee shops and calculate travel</string>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIImageName</key>
+		<string>bloom_logo</string>
+		<key>UIColorName</key>
+		<string>launch_background</string>
+	</dict>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Bloom needs your location to find nearby coffee shops and calculate travel times.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Bloom needs your location to find nearby coffee shops and calculate travel</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
