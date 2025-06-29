@@ -40,7 +40,6 @@ class DiscoverViewModel {
         } catch {
             await MainActor.run {
                 self.error = error
-                print("error from load content")
                 isLoading = false
             }
         }
