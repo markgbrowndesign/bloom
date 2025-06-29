@@ -53,7 +53,6 @@ class LocationService: NSObject, ObservableObject {
 extension LocationService: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        print("Location: \(locations.first?.coordinate.latitude), \(locations.first?.coordinate.longitude)")
         currentLocation = locations.first?.coordinate
         locationError = nil
     }

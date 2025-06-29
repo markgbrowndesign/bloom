@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct bloomApp: App {
+    
+    @StateObject var appState = AuthService()
+    
     var body: some Scene {
         WindowGroup {
-            AppView()
+            AppRootView()
+                .environmentObject(appState)
         }
     }
 }

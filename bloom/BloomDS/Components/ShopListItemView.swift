@@ -16,7 +16,7 @@ struct ShopListItemLargeView: View {
             Image("coffee_shop_background")
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .frame(width: .infinity, height: 192, alignment: .center)
+                .frame(height: 192, alignment: .center)
                 .clipped()
             
             VStack(alignment: .leading, spacing: 4){

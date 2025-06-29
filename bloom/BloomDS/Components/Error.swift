@@ -10,7 +10,7 @@ import SwiftUI
 func ErrorView(error: Error, actionLabel: String, action: @escaping () -> Void) -> some View {
     
     VStack {
-        Text("Error: \(error.localizedDescription), other stuff")
+        Text("Error: \(error.localizedDescription)")
         Button(actionLabel) {
             action()
         }
