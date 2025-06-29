@@ -35,6 +35,8 @@ struct DiscoverView: View {
                     EmptyDiscoverView
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(Theme.primaryBackground)
             .navigationTitle("Bloom")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -44,12 +46,11 @@ struct DiscoverView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea(.container, edges: .vertical)
         .task {
             await viewModel.loadContent()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea(.container, edges: .vertical)
-        .background(Theme.primaryBackground)
     }
     
     @ViewBuilder
@@ -58,11 +59,14 @@ struct DiscoverView: View {
         List {
             if let closestShop = viewModel.closestShop {
                 Section {
-                    NavigationLink (destination: CoffeeShopView(shopId: closestShop.id)) {
+                    ZStack(alignment: .leading) {
+                        NavigationLink (destination: CoffeeShopView(shopId: closestShop.id)) {
+                            EmptyView()
+                        }
+                        .opacity(0)
                         ShopListItemLargeView(shop: closestShop)
                     }
-                    .buttonStyle(.plain)
-                    .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .foregroundStyle(Theme.textSecondary)
                 }
                 .listRowBackground(Theme.sectionBackground)
@@ -78,6 +82,13 @@ struct DiscoverView: View {
                     .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
                     .foregroundStyle(Theme.textSecondary)
                 }
+            } header: {
+                Text("Nearby")
+                    .font(.title2)
+                    .textCase(.none)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
+                    .foregroundStyle(Theme.textSecondary)
             }
             .listRowBackground(Theme.sectionBackground)
             .listRowSeparatorTint(Theme.textPrimary.opacity(0.25))
