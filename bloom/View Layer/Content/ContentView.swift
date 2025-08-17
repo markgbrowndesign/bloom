@@ -29,7 +29,7 @@ struct ContentView: View {
     var body: some View {
         TabView {
             // Home/Discovery Tab
-            DiscoverView(shopService: shopService)
+            DiscoverView(shopRepositroy: shopRepository)
             .tabItem {
                 Image(systemName: "house")
                 Text("Discover")
@@ -37,7 +37,7 @@ struct ContentView: View {
             .toolbarBackground(Theme.primaryBackground, for: .tabBar)
                 
             // List Tab
-            ShopListView()
+            ShopListView(shopRepository: shopRepository)
                 .environmentObject(shopRepository)
                 .foregroundStyle(Theme.textPrimary)
                 .tabItem {

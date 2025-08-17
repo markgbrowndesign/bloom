@@ -9,12 +9,16 @@ import SwiftUI
 
 struct ShopListView: View {
     
-    @EnvironmentObject var shopRepository: CoffeeShopRepository
+    @State private var viewModel: ShopListViewModel
+    
+    init(shopRepository: CoffeeShopRepository) {
+        self._viewModel = State(wrappedValue: ShopListViewModel(shopRepository: shopRepository))
+    }
     
     var body: some View {
         NavigationStack {
             Group {
-                switch shopRepository.shops {
+                switch viewModel.shopRepository.shops {
                 case .idle, .loading:
                     LoaderView(message: "Finding nearby coffee shops")
                 case .loaded(let shops) where shops.isEmpty:
@@ -22,7 +26,7 @@ struct ShopListView: View {
                         title: "No Coffee Shops Found",
                         subtitle: "There were no coffee shops for the criteria you selected",
                         actionTitle: "Retry",
-                        action: { Task { await shopRepository.loadShops() } }
+                        action: { Task { await viewModel.shopRepository.loadShops() } }
                     )
                 case .loaded(let shops):
                     CoffeeShopList(shops: shops)
@@ -30,7 +34,7 @@ struct ShopListView: View {
                     ErrorView(
                         error: error,
                         actionLabel: "Retry",
-                        action: { Task { await shopRepository.loadShops() } }
+                        action: { Task { await viewModel.shopRepository.loadShops() } }
                     )
                 }
             }
@@ -44,12 +48,12 @@ struct ShopListView: View {
                 }
             }
             .task {
-                if case .idle = shopRepository.shops {
-                    await shopRepository.loadShops()
+                if case .idle = viewModel.shopRepository.shops {
+                    await viewModel.shopRepository.loadShops()
                 }
             }
             .refreshable {
-                await shopRepository.loadShops()
+                await viewModel.shopRepository.loadShops()
             }
         }
     }
@@ -93,5 +97,6 @@ struct CoffeeShopList: View {
 }
 
 #Preview {
-    ShopListView()
+    let shopRepository = CoffeeShopRepository()
+    ShopListView(shopRepository: shopRepository)
 }

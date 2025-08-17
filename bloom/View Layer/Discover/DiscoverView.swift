@@ -11,29 +11,48 @@ struct DiscoverView: View {
     
     @State private var viewModel: DiscoverViewModel
     
-    init(shopService: ShopService) {
-        self._viewModel = State(wrappedValue: DiscoverViewModel(shopService: shopService))
+    init(shopRepositroy: CoffeeShopRepository) {
+        self._viewModel = State(wrappedValue: DiscoverViewModel(shopRepository: shopRepositroy))
     }
     
     var body: some View {
         
         NavigationStack {
             Group {
-                if viewModel.isLoading {
+                switch viewModel.shopRepository.shops {
+                case .idle, .loading:
                     LoaderView(message: "Finding coffee...")
-                } else if let error = viewModel.error {
+                case .loaded(let shops) where shops.isEmpty:
+                    EmptyState(
+                        title: "No Coffee Shops Found",
+                        subtitle: "There were no coffee shops for the criteria you selected",
+                        actionTitle: "Retry",
+                        action: { Task { await viewModel.shopRepository.loadShops() } }
+                    )
+                case .loaded(let shops):
+                    DiscoverContentView
+                case .failed(let error):
                     ErrorView(
                         error: error,
-                        actionLabel: "Try again",
-                        action: {
-                            Task { await viewModel.refresh() }
-                        }
+                        actionLabel: "Retry",
+                        action: { Task { await viewModel.shopRepository.loadShops() } }
                     )
-                } else if viewModel.hasShops {
-                    DiscoverContentView
-                } else {
-                    EmptyDiscoverView
                 }
+//                if viewModel.discoverIsLoading {
+//                    LoaderView(message: "Finding coffee...")
+//                } else if let error = viewModel.error {
+//                    ErrorView(
+//                        error: error,
+//                        actionLabel: "Try again",
+//                        action: {
+//                            Task { await viewModel.refresh() }
+//                        }
+//                    )
+//                } else if viewModel.hasShops {
+//                    DiscoverContentView
+//                } else {
+//                    EmptyDiscoverView
+//                }
             }
             .scrollContentBackground(.hidden)
             .background(Theme.primaryBackground)

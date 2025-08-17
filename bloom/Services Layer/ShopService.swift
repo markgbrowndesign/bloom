@@ -13,14 +13,38 @@ class ShopService: ObservableObject {
     //private let locationService: LocationService
     private let apiService = APIService()
     
-    func loadShops() async throws -> [Shop] {
-        guard let location = LocationService.shared.currentLocation else {
-            throw ShopServiceError.locationUnavalible
+    func loadShops() async throws -> LoadingState<[Shop]> {
+        
+        guard let currentLocation = LocationService.shared.currentLocation else {
+            //TODO: Add in fallback method
+            let error = NSError(domain: "", code: 0, userInfo: ["": ""])
+            return .failed(error)
         }
-        return try await apiService.fetchNearbyShops(latitude: location.latitude, longitude: location.longitude)
+
+        let cacheKey = "coffee_shops_\(currentLocation.latitude)_\(currentLocation.longitude)"
+
+//        TODO: Add in local loading
+//        if !forceRefresh,
+//           cacheManager.isCacheValid(forKey: cacheKey, maxAge: 1800),
+//           let cachedShops = cacheManager.load([Shop].self, forKey: cacheKey) {
+//            await MainActor.run {
+//                shops = .loaded(cachedShops)
+//            }
+//            return
+//        }
+
+        do {
+            let nearbyShops = try await apiService.fetchNearbyShops(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
+
+            //cacheManager.save(nearbyShops, forKey: cacheKey)
+            return LoadingState.loaded(nearbyShops)
+        } catch {
+            return LoadingState.failed(error)
+        }
+        
     }
     
-    func refreshShops() async throws -> [Shop] {
+    func refreshShops() async throws -> LoadingState<[Shop]> {
         LocationService.shared.requestCurrentLocation()
         return try await loadShops()
     }
