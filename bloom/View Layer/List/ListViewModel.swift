@@ -14,11 +14,12 @@ class ShopListViewModel: ObservableObject {
     @Published var error: Error?
     @Published var showEmptyState = false
     
-    private let shopRepository = CoffeeShopRepository()
+    let shopRepository: CoffeeShopRepository
     private var cancellables = Set<AnyCancellable>()
     
-    init() {
-        shopRepository.$shops
+    init(shopRepository: CoffeeShopRepository) {
+        self.shopRepository = shopRepository
+        self.shopRepository.$shops
             .receive(on: DispatchQueue.main)
             .sink { [weak self] loadingState in
                 switch loadingState {

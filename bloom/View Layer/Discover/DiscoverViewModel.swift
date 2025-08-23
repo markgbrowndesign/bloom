@@ -7,46 +7,57 @@
 
 import Foundation
 import Observation
+import Combine
 
-@Observable
-class DiscoverViewModel {
+class DiscoverViewModel: ObservableObject {
     
     var closestShop: Shop?
     var shops: [Shop] = []
-    var isLoading = false
+    @Published var discoverIsLoading = false
     var error: Error?
+    var showEmptyState = false
     
-    private let shopService: ShopService
+    let shopRepository: CoffeeShopRepository
+    private var cancellables = Set<AnyCancellable>()
+    
+    init(shopRepository: CoffeeShopRepository) {
+        
+        self.shopRepository = shopRepository
+        self.shopRepository.$shops
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] loadingState in
+                switch loadingState {
+                case .idle:
+                    self?.discoverIsLoading = false
+                case .loading:
+                    self?.discoverIsLoading = true
+                    self?.error = nil
+                case .loaded(let shops):
+                    self?.discoverIsLoading = false
+                    self?.updateContent(with: shops)
+                    self?.showEmptyState = false
+                case .failed(let error):
+                    self?.discoverIsLoading = false
+                    self?.error = error
+                    self?.showEmptyState = true
+                }
+            }
+            .store(in: &cancellables)
+        
+    }
     
     var hasShops: Bool {
-        closestShop != nil || !shops.isEmpty
+        closestShop != nil
     }
     
-    init(shopService: ShopService) {
-        self.shopService = shopService
-    }
-    
-    func loadContent() async {
-        
-        isLoading = true
-        error = nil
-        
-        do {
-            let shops = try await shopService.loadShops()
-            await MainActor.run {
-                updateContent(with: shops)
-                isLoading = false
-            }
-        } catch {
-            await MainActor.run {
-                self.error = error
-                isLoading = false
-            }
+    func loadContent(forceRefresh: Bool = false) async {
+        Task {
+            await shopRepository.loadShops(forceRefresh: forceRefresh)
         }
     }
     
-    func refresh() async {
-        await loadContent()
+    func refreshContent() async {
+        await loadContent(forceRefresh: true)
     }
     
     // MARK: - Private Methods

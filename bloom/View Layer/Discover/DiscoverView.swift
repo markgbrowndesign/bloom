@@ -11,28 +11,32 @@ struct DiscoverView: View {
     
     @State private var viewModel: DiscoverViewModel
     
-    init(shopService: ShopService) {
-        self._viewModel = State(wrappedValue: DiscoverViewModel(shopService: shopService))
+    init(shopRepositroy: CoffeeShopRepository) {
+        self._viewModel = State(wrappedValue: DiscoverViewModel(shopRepository: shopRepositroy))
     }
     
     var body: some View {
         
         NavigationStack {
             Group {
-                if viewModel.isLoading {
+                switch viewModel.shopRepository.shops {
+                case .idle, .loading:
                     LoaderView(message: "Finding coffee...")
-                } else if let error = viewModel.error {
+                case .loaded(let shops) where shops.isEmpty:
+                    EmptyState(
+                        title: "No Coffee Shops Found",
+                        subtitle: "There were no coffee shops for the criteria you selected",
+                        actionTitle: "Retry",
+                        action: { Task { await viewModel.shopRepository.loadShops() } }
+                    )
+                case .loaded(let shops):
+                    DiscoverContentView(shops: shops)
+                case .failed(let error):
                     ErrorView(
                         error: error,
-                        actionLabel: "Try again",
-                        action: {
-                            Task { await viewModel.refresh() }
-                        }
+                        actionLabel: "Retry",
+                        action: { Task { await viewModel.shopRepository.loadShops() } }
                     )
-                } else if viewModel.hasShops {
-                    DiscoverContentView
-                } else {
-                    EmptyDiscoverView
                 }
             }
             .scrollContentBackground(.hidden)
@@ -41,7 +45,7 @@ struct DiscoverView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     IconButton(icon: "arrow.clockwise") {
-                        Task { await viewModel.refresh() }
+                        Task { await viewModel.refreshContent() }
                     }
                 }
             }
@@ -49,15 +53,29 @@ struct DiscoverView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea(.container, edges: .vertical)
         .task {
-            await viewModel.loadContent()
+            if case .idle = viewModel.shopRepository.shops {
+                await viewModel.loadContent()
+            }
+        }
+        .refreshable {
+            await viewModel.refreshContent()
         }
     }
     
     @ViewBuilder
-    private var DiscoverContentView: some View {
+    private var EmptyDiscoverView: some View {
+        Text("empty")
+    }
     
+}
+
+private struct DiscoverContentView: View {
+
+    let shops: [Shop]
+    
+    var body: some View {
         List {
-            if let closestShop = viewModel.closestShop {
+            if let closestShop = shops.first {
                 Section {
                     ZStack(alignment: .leading) {
                         NavigationLink (destination: CoffeeShopView(shopId: closestShop.id)) {
@@ -74,13 +92,15 @@ struct DiscoverView: View {
 
             }
             Section {
-                ForEach(viewModel.shops, id: \.id) { shop in
-                    NavigationLink (destination: CoffeeShopView(shopId: shop.id)) {
-                        ShopListItemView(shop: shop)
+                ForEach(shops, id: \.id) { shop in
+                    if shop.id != shops.first?.id {
+                        NavigationLink (destination: CoffeeShopView(shopId: shop.id)) {
+                            ShopListItemView(shop: shop)
+                        }
+                        .buttonStyle(.plain)
+                        .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
+                        .foregroundStyle(Theme.textSecondary)
                     }
-                    .buttonStyle(.plain)
-                    .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
-                    .foregroundStyle(Theme.textSecondary)
                 }
             } header: {
                 Text("Nearby")
@@ -95,10 +115,4 @@ struct DiscoverView: View {
         }
         .background(Theme.primaryBackground)
     }
-    
-    @ViewBuilder
-    private var EmptyDiscoverView: some View {
-        Text("empty")
-    }
-    
 }
