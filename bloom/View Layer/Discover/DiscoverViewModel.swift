@@ -51,14 +51,13 @@ class DiscoverViewModel: ObservableObject {
     }
     
     func loadContent(forceRefresh: Bool = false) async {
-        
         Task {
             await shopRepository.loadShops(forceRefresh: forceRefresh)
         }
     }
     
-    func refresh() async {
-        await loadContent()
+    func refreshContent() async {
+        await loadContent(forceRefresh: true)
     }
     
     // MARK: - Private Methods

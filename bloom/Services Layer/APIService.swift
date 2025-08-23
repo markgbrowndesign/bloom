@@ -25,10 +25,9 @@ class APIService {
         
         do {
             let data: [Shop] = try await supabase
-                .rpc("nearby_coffee_shops", params: [
-                    "user_lat": latitude,
-                    "user_long": longitude,
-                    "max_results": maxResults
+                .rpc("nearby_coffee_shops_2", params: [
+                    "latitude": latitude,
+                    "longitude": longitude
                 ])
                 .execute()
                 .value

@@ -49,11 +49,11 @@ struct ShopListView: View {
             }
             .task {
                 if case .idle = viewModel.shopRepository.shops {
-                    await viewModel.shopRepository.loadShops()
+                    viewModel.loadShops()
                 }
             }
             .refreshable {
-                await viewModel.shopRepository.loadShops()
+                viewModel.refreshShops()
             }
         }
     }
