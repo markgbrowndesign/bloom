@@ -44,7 +44,7 @@ class ShopListViewModel: ObservableObject {
     func loadShops(forceRefresh: Bool = false) {
         
         Task {
-            await shopRepository.loadShops(forceRefresh: forceRefresh)
+            await shopRepository.loadShops(filterNearby: false, forceRefresh: forceRefresh)
         }
     }
     

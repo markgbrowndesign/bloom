@@ -19,19 +19,17 @@ class APIService {
         return data
     }
     
-    func fetchNearbyShops(latitude: Double, longitude: Double, maxResults: Double = 20) async throws -> [Shop] {
-        
-        print("Lat: \(latitude), Long: \(longitude), max: \(maxResults)")
+    func fetchNearbyShops(latitude: Double, longitude: Double, maxDistance: Double = 25) async throws -> [Shop] {
         
         do {
             let data: [Shop] = try await supabase
-                .rpc("nearby_coffee_shops_2", params: [
+                .rpc("nearby_coffee_shops", params: [
                     "latitude": latitude,
-                    "longitude": longitude
+                    "longitude": longitude,
+                    "max_distance": maxDistance
                 ])
                 .execute()
                 .value
-            
             return data
         } catch {
             print("throwing from here")

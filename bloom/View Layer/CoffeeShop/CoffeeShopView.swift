@@ -46,7 +46,7 @@ struct CoffeeShopView: View {
             ScrollView {
                 if let shop = viewModel.shop {
                     VStack (spacing: 0) {
-                        HeaderView(headerImage: "coffee_shop_background", logoImage: "shop_logo")
+                        HeaderView(shopID: shop.id)
                         VStack(spacing: 24) {
                             TitleView(shop: shop, travelTime: viewModel.travelTime)
                             ButtonsGroupView(onDirectionsTap: { viewModel.onTapDirections() }, onNoteTap: {}, onFavoriteTap: {}, onUpvoteTap: {})
@@ -66,8 +66,7 @@ struct CoffeeShopView: View {
 
 struct HeaderView: View {
     
-    let headerImage: String
-    let logoImage: String
+    let shopID: UUID
     let height: CGFloat = 375
     
     var body: some View {
@@ -78,9 +77,7 @@ struct HeaderView: View {
             
             ZStack(alignment: .top) {
                 // Background image
-                Image(headerImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
+                CachedImageView(shopID: shopID, imageType: .header, fallbackAsset: "coffee_shop_background")
                     .frame(width: size.width, height: height > 0 ? height : 0, alignment: .bottom)
                 
                 // Gradient and logo overlay
@@ -91,8 +88,7 @@ struct HeaderView: View {
                     ], startPoint: .top, endPoint: .bottom)
                     
                     VStack(alignment: .leading, spacing: 4) {
-                        Image(logoImage)
-                            .resizable()
+                        CachedImageView(shopID: shopID, imageType: .logo, fallbackAsset: "shop_logo")
                             .frame(width: 160, height: 160, alignment: .bottom)
                     }
                     .padding(.horizontal)
