@@ -50,6 +50,8 @@ struct CoffeeShopView: View {
                         VStack(spacing: 24) {
                             TitleView(shop: shop, travelTime: viewModel.travelTime)
                             ButtonsGroupView(onDirectionsTap: { viewModel.onTapDirections() }, onNoteTap: {}, onFavoriteTap: {}, onUpvoteTap: {})
+                                .frame(maxWidth: .infinity)
+                                .padding(.horizontal, 24)
                             if shop.longDescription != nil {
                                 TruncatableText(text: shop.longDescription ?? "")
                             }
@@ -148,21 +150,19 @@ struct ButtonsGroupView: View {
     let onFavoriteTap: () -> Void
     let onUpvoteTap: () -> Void
     
+    @Namespace var glassNamespace
+    
     var body: some View {
-        VStack(spacing: 8) {
             
-            // Main action button
-            primaryButton(title: "Get directions", action: onDirectionsTap)
-
-            // Quick action buttons row
-            HStack(spacing: 8) {
-                actionButton(icon: "note.text", title: "Private note", action: onNoteTap)
-                actionButton(icon: "plus", title: "Favourite", action: onFavoriteTap)
-                actionButton(icon: "hand.thumbsup", title: "Up vote", action: onUpvoteTap)
+        GlassEffectContainer(spacing: 8) {
+            HStack {
+                primaryButton(title: "Get directions", action: onDirectionsTap)
+                    .glassEffectID("directions", in: glassNamespace)
+                actionButton(icon: "plus", action: onFavoriteTap)
+                    .glassEffectID("plus", in: glassNamespace)
             }
-            .foregroundColor(Theme.textSecondary)
         }
-        .padding(.horizontal)
+            
     }
 }
 

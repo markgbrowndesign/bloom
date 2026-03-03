@@ -44,7 +44,11 @@ struct ShopListView: View {
             .navigationTitle("All shops")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    IconButton(icon: "line.3.horizontal.decrease", action: {})
+                    Button {
+                        
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease")
+                    }
                 }
             }
             .task {

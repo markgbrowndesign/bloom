@@ -44,8 +44,10 @@ struct DiscoverView: View {
             .navigationTitle("Bloom")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    IconButton(icon: "arrow.clockwise") {
+                    Button {
                         Task { await viewModel.refreshContent() }
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
                     }
                 }
             }

@@ -50,7 +50,13 @@ struct ContentView: View {
             NavigationStack {
                 ProfileView()
                     .toolbar {
-                        IconButton(icon: "rectangle.portrait.and.arrow.forward", action: {})
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button {
+                                
+                            } label: {
+                                Image(systemName: "rectangle.portrait.and.arrow.forward")
+                            }
+                        }
                     }
             }
             .tabItem {
