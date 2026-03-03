@@ -43,10 +43,6 @@ struct Shop: Codable, Identifiable {
     let serviceOutdoorSeating: Bool?
     let serviceSellsBeans: Bool?
     
-    //assets
-    let imageLogoURL: String?
-    let imageHeaderURL: String?
-    
     //metadata
     let createdAt: String?
     let lastUpdatedAt: String?
@@ -78,10 +74,7 @@ struct Shop: Codable, Identifiable {
         case serviceParking = "service_parking"
         case servicePetFriendly = "service_dog_friendly"
         case serviceOutdoorSeating = "service_outdoor_seating"
-        
-        case imageLogoURL = "image_logo_url"
-        case imageHeaderURL = "image_header_url"
-        
+
         case createdAt = "created_at"
         case lastUpdatedAt = "updated_at"
     }

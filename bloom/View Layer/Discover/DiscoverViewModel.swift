@@ -57,6 +57,7 @@ class DiscoverViewModel: ObservableObject {
     }
     
     func refreshContent() async {
+        ImageService.shared.clearCache()
         await loadContent(forceRefresh: true)
     }
     

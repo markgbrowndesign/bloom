@@ -13,9 +13,7 @@ struct ShopListItemLargeView: View {
     
     var body: some View {
         VStack() {
-            Image("coffee_shop_background")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
+            CachedImageView(shopID: shop.id, imageType: .header, fallbackAsset: "coffee_shop_background")
                 .frame(height: 192, alignment: .center)
                 .clipped()
             
@@ -53,8 +51,7 @@ struct ShopListItemView: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            Image("shop_logo_list")
-                .resizable()
+            CachedImageView(shopID: shop.id, imageType: .thumbnail, fallbackAsset: "shop_logo_list")
                 .frame(width: 40, height: 40)
                 .clipShape(.rect(cornerRadius: 8))
             

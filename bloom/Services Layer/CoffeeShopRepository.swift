@@ -15,14 +15,18 @@ class CoffeeShopRepository: ObservableObject {
     @Published var shops: LoadingState<[Shop]> = .idle
     @Published var shopDetails: [UUID: LoadingState<Shop>] = [:]
     
-    func loadShops(forceRefresh: Bool = false) async {
+    func loadShops(filterNearby: Bool = true, forceRefresh: Bool = false) async {
         
-        switch LocationService.shared.authorizationStatus {
-        case .authorizedAlways, .authorizedWhenInUse:
-            await loadNeabyShops(forceRefresh: forceRefresh)
-        case .notDetermined, .denied, .restricted :
-            await loadAllShops(forceRefresh: forceRefresh)
-        default:
+        if filterNearby {
+            switch LocationService.shared.authorizationStatus {
+            case .authorizedAlways, .authorizedWhenInUse:
+                await loadNeabyShops(forceRefresh: forceRefresh)
+            case .notDetermined, .denied, .restricted :
+                await loadAllShops(forceRefresh: forceRefresh)
+            default:
+                await loadAllShops(forceRefresh: forceRefresh)
+            }
+        } else {
             await loadAllShops(forceRefresh: forceRefresh)
         }
         
@@ -63,6 +67,7 @@ class CoffeeShopRepository: ObservableObject {
             }
         }
     }
+    
     func loadAllShops(forceRefresh: Bool = false) async {
         await MainActor.run {
             self.shops = .loading
