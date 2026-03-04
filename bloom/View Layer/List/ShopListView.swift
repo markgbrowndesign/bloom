@@ -97,7 +97,7 @@ struct CoffeeShopList: View {
             .listRowBackground(Color.clear)
         }
         .contentMargins(.top, 16)
-        .listSectionSpacing(24)
+        .listSectionSpacing(16)
     }
 }
 
