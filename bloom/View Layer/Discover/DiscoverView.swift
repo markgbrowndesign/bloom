@@ -88,6 +88,13 @@ private struct DiscoverContentView: View {
                     }
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .foregroundStyle(Theme.textSecondary)
+                } header: {
+                    Text("Closest")
+                        .font(.title2)
+                        .textCase(.none)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
+                        .foregroundStyle(Theme.textSecondary)
                 }
                 .listRowBackground(Theme.sectionBackground)
                 .listRowSeparatorTint(Theme.textPrimary.opacity(0.25))
