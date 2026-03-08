@@ -44,7 +44,11 @@ struct ShopListView: View {
             .navigationTitle("All shops")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    IconButton(icon: "line.3.horizontal.decrease", action: {})
+                    Button {
+                        
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease")
+                    }
                 }
             }
             .task {
@@ -80,19 +84,20 @@ struct CoffeeShopList: View {
             
             // Request footer
             Section {
-                VStack(alignment: .center, spacing: 4) {
-                    Text("Missing somewhere?")
+                VStack(alignment: .center, spacing: 8) {
+                    Text("Are we missing somewhere?")
                         .foregroundStyle(Theme.textSecondary)
                     
-                    textButton(title: "Suggest a cafe") { }
+                    textButton(title: "Recommend a coffee shop") { }
                         .fontWeight(.bold)
                         .foregroundStyle(Theme.textButton)
                 }
                 .frame(maxWidth: .infinity)
             }
             .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 24, trailing: 0))
         }
+        .contentMargins(.top, 16)
+        .listSectionSpacing(16)
     }
 }
 

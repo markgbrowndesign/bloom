@@ -7,21 +7,17 @@
 import Foundation
 import SwiftUI
 
-func actionButton(icon: String, title: String, action: @escaping () -> Void) -> some View {
+func actionButton(icon: String, action: @escaping () -> Void) -> some View {
     Button(action: action) {
-        VStack(spacing: 4) {
-            Image(systemName: icon)
-                .resizable()
-                .frame(width: 16, height: 16)
-                .padding(.top, 12)
-            Text(title)
-                .font(.caption)
-                .padding(.bottom, 12)
-        }.frame(maxWidth: .infinity)
+        Image(systemName: icon)
+            .frame(width: 40, height: 40)
+            .foregroundStyle(Theme.textPrimary)
     }
+    .frame(width: 56, height: 56, alignment: .center)
     .background(Theme.actionBackground)
-    .clipShape(.buttonBorder)
-    .foregroundColor(Theme.textSecondary)
+    .clipShape(Circle())
+    .glassEffect(.regular.interactive(), in: .circle)
+
 }
 
 func primaryButton(icon: String? = nil, title: String, action: @escaping () -> Void) -> some View {
@@ -41,7 +37,8 @@ func primaryButton(icon: String? = nil, title: String, action: @escaping () -> V
     }
     .foregroundStyle(Theme.primaryBackground)
     .background(Theme.buttonBackground)
-    .clipShape(.buttonBorder)
+    .clipShape(.capsule)
+    .glassEffect(.regular.interactive())
 }
 
 func textButton(title: String, action: @escaping () -> Void) -> some View {
@@ -64,4 +61,21 @@ func IconButton(icon: String, action: @escaping () -> Void) -> some View {
     .background(Theme.actionBackground)
     .clipShape(Circle())
 
+}
+
+#Preview("Buttons") {
+    VStack(spacing: 16) {
+        
+        
+        HStack(spacing: 8) {
+            primaryButton(title: "Get directions") { }
+            actionButton(icon: "plus") { }
+        }
+        
+        textButton(title: "Suggest a cafe") { }
+        
+        IconButton(icon: "arrow.clockwise") { }
+    }
+    .padding()
+    .background(Theme.primaryBackground) // your dark background so colours read correctly
 }

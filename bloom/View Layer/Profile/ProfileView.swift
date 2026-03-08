@@ -41,110 +41,112 @@ struct ProfileView: View {
     }
     
     var ProfileListView: some View {
-        List {
-            // Header section
-            Section {
-                ProfileDetailView(email: viewModel.profile?.email ?? "", username: viewModel.profile?.username ?? "")
-                    .listSectionSeparator(.hidden)
+        
+        ScrollView {
+            VStack(spacing: 0) {
+                
+                // Header — outside the List, no chrome
+                ProfileDetailView(
+                    email: viewModel.profile?.email ?? "",
+                    username: viewModel.profile?.username ?? ""
+                )
+                .padding(.horizontal, 24)
+                .padding(.top, 40)
             }
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 40, leading: 0, bottom: 0, trailing: 0))
             
-            // Link section
-            Section {
-                // TODO: Implement links
-                ProfileViewListItem(
-                    icon: "star",
-                    title: "Leave a review",
-                    subtitle: nil,
-                    listItemStyle: .link,
-                    action: {}
-                )
-                ProfileViewListItem(
-                    icon: "shippingbox",
-                    title: "Suggest an improvment",
-                    subtitle: nil,
-                    listItemStyle: .link,
-                    action: {}
-                )
+            // Grouped sections — their own List, insetGrouped style
+            List {
+                Section {
+                    ProfileViewListItem(
+                        icon: "star",
+                        title: "Leave a review",
+                        subtitle: nil,
+                        listItemStyle: .link,
+                        action: {}
+                    )
+                    ProfileViewListItem(
+                        icon: "shippingbox",
+                        title: "Suggest an improvment",
+                        subtitle: nil,
+                        listItemStyle: .link,
+                        action: {}
+                    )
+                }
+                .listRowBackground(Theme.sectionBackground)
+                .listRowInsets(rowInsets)
+                
+                Section {
+                    ProfileViewListItem(
+                        icon: "tram",
+                        title: "Travel method",
+                        subtitle: "Set the default for getting directions",
+                        listItemStyle: .navigation,
+                        action: {}
+                    )
+                    
+                    ProfileViewListItem(
+                        icon: "number",
+                        title: "Units of measure",
+                        subtitle: "Choose how we show you distance",
+                        listItemStyle: .navigation,
+                        action: {}
+                    )
+                    
+                    ProfileViewListItem(
+                        icon: "bell",
+                        title: "Notifications",
+                        subtitle: "Update your contact preferences",
+                        listItemStyle: .navigation,
+                        action: {}
+                    )
+                    
+                    ProfileViewListItem(
+                        icon: "ant",
+                        title: "Report a bug",
+                        subtitle: "Let us know something went wrong",
+                        listItemStyle: .navigation,
+                        action: {}
+                    )
+                    
+                    ProfileViewListItem(
+                        icon: "doc.text",
+                        title: "Legal documents",
+                        subtitle: "The boring text we need to share",
+                        listItemStyle: .navigation,
+                        action: {}
+                    )
+                } header: {
+                    Text("Settings")
+                        .font(.title2)
+                        .textCase(.none)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
+                        .foregroundStyle(Theme.textSecondary)
+                }
+                .listRowBackground(Theme.sectionBackground)
+                .listRowInsets(rowInsets)
+                
+                Section {
+                    ProfileViewListItem(
+                        icon: "trash",
+                        title: "Delete account",
+                        subtitle: "Had enough coffee? Say goodbye",
+                        listItemStyle: .navigation,
+                        isDestructive: true,
+                        action: { viewModel.logout()}
+                    )
+                }
+                .listRowBackground(Theme.Destructive.Background.weak)
+                .listRowInsets(rowInsets)
             }
-            .listRowSeparatorTint(Theme.textPrimary.opacity(0.25))
-            .listRowBackground(Theme.sectionBackground)
-            .listRowInsets(rowInsets)
-            
-            // Settings Section
-            Section {
-                // TODO: Implement settings functions
-                ProfileViewListItem(
-                    icon: "tram",
-                    title: "Travel method",
-                    subtitle: "Set the default for getting directions",
-                    listItemStyle: .navigation,
-                    action: {}
-                )
-                
-                ProfileViewListItem(
-                    icon: "number",
-                    title: "Units of measure",
-                    subtitle: "Choose how we show you distance",
-                    listItemStyle: .navigation,
-                    action: {}
-                )
-                
-                ProfileViewListItem(
-                    icon: "bell",
-                    title: "Notifications",
-                    subtitle: "Update your contact preferences",
-                    listItemStyle: .navigation,
-                    action: {}
-                )
-                
-                ProfileViewListItem(
-                    icon: "ant",
-                    title: "Report a bug",
-                    subtitle: "Let us know something went wrong",
-                    listItemStyle: .navigation,
-                    action: {}
-                )
-                
-                ProfileViewListItem(
-                    icon: "doc.text",
-                    title: "Legal documents",
-                    subtitle: "The boring text we need to share",
-                    listItemStyle: .navigation,
-                    action: {}
-                )
-            } header: {
-                Text("Settings")
-                    .font(.title2)
-                    .textCase(.none)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
-                    .foregroundStyle(Theme.textSecondary)
-            }
-            .listRowBackground(Theme.sectionBackground)
-            .listRowSeparatorTint(Theme.textPrimary.opacity(0.25))
-            .listRowInsets(rowInsets)
-            
-            // Delete account
-            Section {
-                ProfileViewListItem(
-                    icon: "trash",
-                    title: "Delete account",
-                    subtitle: "Had enough coffee? Say goodbye",
-                    listItemStyle: .navigation,
-                    isDestructive: true,
-                    action: { viewModel.logout()}
-                )
-            }
-            .listRowBackground(Theme.Destructive.Background.weak)
-            .listRowInsets(rowInsets)
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .scrollDisabled(true)
+            .containerRelativeFrame(.vertical)
         }
-        .scrollContentBackground(.hidden)
         .background(Theme.primaryBackground)
-        .foregroundStyle(Theme.textPrimary)
-
     }
+
 }
 
 struct ProfileDetailView: View {
