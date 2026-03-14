@@ -21,7 +21,7 @@ struct ContentView: View {
     init() {
         
       // Navigation bar styling
-        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(hex: "#F2E1CAFF") ?? UIColor.green]
+        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(hex: "#F2E1CAFF") ?? UIColor.white]
         UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(hex: "#F2E1CAFF") ?? UIColor.white]
         UINavigationBar.appearance().barTintColor = UIColor(hex: "#1A0D08FF") ?? UIColor.white
     }
@@ -29,7 +29,7 @@ struct ContentView: View {
     var body: some View {
         TabView {
             // Home/Discovery Tab
-            DiscoverView(shopRepositroy: shopRepository)
+            DiscoverView(shopService: shopService)
             .tabItem {
                 Image(systemName: "house")
                 Text("Discover")
@@ -37,8 +37,7 @@ struct ContentView: View {
             .toolbarBackground(Theme.primaryBackground, for: .tabBar)
                 
             // List Tab
-            ShopListView(shopRepository: shopRepository)
-                .environmentObject(shopRepository)
+            ShopListView(shopService: shopService)
                 .foregroundStyle(Theme.textPrimary)
                 .tabItem {
                     Image(systemName: "list.bullet")

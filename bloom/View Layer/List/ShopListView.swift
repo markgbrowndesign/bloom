@@ -1,5 +1,5 @@
 //
-//  ListView.swift
+//  ShopListView.swift
 //  bloom
 //
 //  Created by Mark Brown on 23/05/2025.
@@ -11,31 +11,30 @@ struct ShopListView: View {
     
     @State private var viewModel: ShopListViewModel
     
-    init(shopRepository: CoffeeShopRepository) {
-        self._viewModel = State(wrappedValue: ShopListViewModel(shopRepository: shopRepository))
+    init(shopService: ShopService) {
+        self._viewModel = State(wrappedValue: ShopListViewModel(shopService: shopService))
     }
     
     var body: some View {
         NavigationStack {
             Group {
-                switch viewModel.shopRepository.shops {
-                case .idle, .loading:
+                if viewModel.isLoading {
                     LoaderView(message: "Finding nearby coffee shops")
-                case .loaded(let shops) where shops.isEmpty:
+                } else if let error = viewModel.error {
+                    ErrorView(
+                        error: error,
+                        actionLabel: "Retry",
+                        action: { Task { await viewModel.refreshShops() } }
+                    )
+                } else if viewModel.shops.isEmpty {
                     EmptyState(
                         title: "No Coffee Shops Found",
                         subtitle: "There were no coffee shops for the criteria you selected",
                         actionTitle: "Retry",
-                        action: { Task { await viewModel.shopRepository.loadShops() } }
+                        action: { Task { await viewModel.refreshShops() } }
                     )
-                case .loaded(let shops):
-                    CoffeeShopList(shops: shops)
-                case .failed(let error):
-                    ErrorView(
-                        error: error,
-                        actionLabel: "Retry",
-                        action: { Task { await viewModel.shopRepository.loadShops() } }
-                    )
+                } else {
+                    CoffeeShopList(shops: viewModel.shops)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -45,19 +44,17 @@ struct ShopListView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        
+                        // TODO: Present filter sheet
                     } label: {
                         Image(systemName: "line.3.horizontal.decrease")
                     }
                 }
             }
             .task {
-                if case .idle = viewModel.shopRepository.shops {
-                    viewModel.loadShops()
-                }
+                await viewModel.loadShops()
             }
             .refreshable {
-                viewModel.refreshShops()
+                await viewModel.refreshShops()
             }
         }
     }
@@ -102,6 +99,5 @@ struct CoffeeShopList: View {
 }
 
 #Preview {
-    let shopRepository = CoffeeShopRepository()
-    ShopListView(shopRepository: shopRepository)
+    ShopListView(shopService: ShopService())
 }
