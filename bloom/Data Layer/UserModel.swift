@@ -63,7 +63,8 @@ enum UserProfileProperty: String {
 
 class User: ObservableObject {
     private let apiService = APIService()
-    private let cacheManager = CacheManager()
+    private let cacheService = CacheService()
+    private let userTTL: TimeInterval = .infinity
     
     @Published var profile: [UUID: LoadingState<Profile>] = [:]
     
@@ -75,8 +76,7 @@ class User: ObservableObject {
         let cacheKey = "userProfile_\(userId)"
         
         if !forceRefresh,
-           cacheManager.isCacheValid(forKey: cacheKey, maxAge: 600),
-           let cachedUserProfile = cacheManager.load(Profile.self, forKey: cacheKey) {
+           let cachedUserProfile = cacheService.load(Profile.self, forKey: cacheKey, maxAge: userTTL) {
                await MainActor.run {
                    profile[userId] = .loaded(cachedUserProfile)
                }
@@ -85,7 +85,7 @@ class User: ObservableObject {
         
         do {
             guard let profile = try await apiService.fetchUserWith(id: userId) else { return }
-            cacheManager.save(profile, forKey: cacheKey)
+            cacheService.save(profile, forKey: cacheKey)
             
             await MainActor.run {
                 self.profile[userId] = .loaded(profile)

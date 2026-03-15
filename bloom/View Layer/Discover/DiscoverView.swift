@@ -11,31 +11,33 @@ struct DiscoverView: View {
     
     @State private var viewModel: DiscoverViewModel
     
-    init(shopRepositroy: CoffeeShopRepository) {
-        self._viewModel = State(wrappedValue: DiscoverViewModel(shopRepository: shopRepositroy))
+    init(shopService: ShopService) {
+       _viewModel = State(wrappedValue: DiscoverViewModel(shopService: shopService))
     }
     
     var body: some View {
-        
         NavigationStack {
             Group {
-                switch viewModel.shopRepository.shops {
-                case .idle, .loading:
+                if viewModel.isLoading {
                     LoaderView(message: "Finding coffee...")
-                case .loaded(let shops) where shops.isEmpty:
+                } else if let error = viewModel.error {
+                    ErrorView(
+                        error: error,
+                        actionLabel: "Retry",
+                        action: { Task { await viewModel.refreshContent() } }
+                    )
+                } else if viewModel.hasShops {
+                    DiscoverContentView (
+                        shopService: viewModel.shopService,
+                        closestShop: viewModel.closestShop,
+                        nearbyShops: viewModel.nearbyShops
+                    )
+                } else {
                     EmptyState(
                         title: "No Coffee Shops Found",
                         subtitle: "There were no coffee shops for the criteria you selected",
                         actionTitle: "Retry",
-                        action: { Task { await viewModel.shopRepository.loadShops() } }
-                    )
-                case .loaded(let shops):
-                    DiscoverContentView(shops: shops)
-                case .failed(let error):
-                    ErrorView(
-                        error: error,
-                        actionLabel: "Retry",
-                        action: { Task { await viewModel.shopRepository.loadShops() } }
+                        action: { Task { await viewModel.refreshContent() } }
                     )
                 }
             }
@@ -55,32 +57,26 @@ struct DiscoverView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea(.container, edges: .vertical)
         .task {
-            if case .idle = viewModel.shopRepository.shops {
-                await viewModel.loadContent()
-            }
+            await viewModel.loadContent()
         }
         .refreshable {
             await viewModel.refreshContent()
         }
     }
-    
-    @ViewBuilder
-    private var EmptyDiscoverView: some View {
-        Text("empty")
-    }
-    
 }
 
 private struct DiscoverContentView: View {
 
-    let shops: [Shop]
+    let shopService: ShopService
+    let closestShop: Shop?
+    let nearbyShops: [Shop]
     
     var body: some View {
         List {
-            if let closestShop = shops.first {
+            if let closestShop {
                 Section {
                     ZStack(alignment: .leading) {
-                        NavigationLink (destination: CoffeeShopView(shopId: closestShop.id)) {
+                        NavigationLink (destination: CoffeeShopView(shopId: closestShop.id, shopService: shopService)) {
                             EmptyView()
                         }
                         .opacity(0)
@@ -101,15 +97,13 @@ private struct DiscoverContentView: View {
 
             }
             Section {
-                ForEach(shops, id: \.id) { shop in
-                    if shop.id != shops.first?.id {
-                        NavigationLink (destination: CoffeeShopView(shopId: shop.id)) {
-                            ShopListItemView(shop: shop)
-                        }
-                        .buttonStyle(.plain)
-                        .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
-                        .foregroundStyle(Theme.textSecondary)
+                ForEach(nearbyShops, id: \.id) { shop in
+                    NavigationLink (destination: CoffeeShopView( shopId: shop.id, shopService: shopService)) {
+                        ShopListItemView(shop: shop)
                     }
+                    .buttonStyle(.plain)
+                    .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
+                    .foregroundStyle(Theme.textSecondary)
                 }
             } header: {
                 Text("Nearby")

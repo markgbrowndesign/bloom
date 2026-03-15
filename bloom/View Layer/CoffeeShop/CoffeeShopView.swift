@@ -6,63 +6,76 @@
 //
 
 import SwiftUI
-import Supabase
 import MapKit
 
 struct CoffeeShopView: View {
     
     let shopId: UUID
-    @StateObject private var viewModel = CoffeeShopViewModel()
-    @State private var showingErrorAlert = false
+    @State private var viewModel: CoffeeShopViewModel
     
-    @State private var showFullDescription = false
+    init(shopId: UUID, shopService: ShopService) {
+        self.shopId = shopId
+        _viewModel = State(wrappedValue: CoffeeShopViewModel(shopService: shopService))
+    }
 
     var body: some View {
         NavigationStack{
             Group {
                 if viewModel.isLoading {
                     LoaderView(message: "Loading shop details...")
-                } else if viewModel.shop != nil {
-                    ShopDetailContent
-                } else if viewModel.error != nil {
+                }else if viewModel.error != nil {
                     EmptyState(
                         title: "Failed to Load",
                         subtitle: "We couldn't load the details for this coffee shop. Please check your connection and try again.",
                         actionTitle: "Retry",
-                        action: { viewModel.loadShop(shopId: shopId, forceRefresh: true) }
+                        action: {  Task { await viewModel.refresh(shopId: shopId) } }
                     )
                     .frame(maxHeight: .infinity)
+                } else if viewModel.shop != nil {
+                    ShopDetailContent(viewModel: viewModel, shopId: shopId)
                 }
             }
             .task {
-                viewModel.loadShop(shopId: shopId)
+                await viewModel.loadShop(shopId: shopId)
             }
         }
         .ignoresSafeArea(.container, edges: .vertical)
         .background(Theme.primaryBackground)
     }
+
+}
+
+struct ShopDetailContent: View {
     
-    var ShopDetailContent: some View {
-            ScrollView {
-                if let shop = viewModel.shop {
-                    VStack (spacing: 0) {
-                        HeaderView(shopID: shop.id)
-                        VStack(spacing: 24) {
-                            TitleView(shop: shop, travelTime: viewModel.travelTime)
-                            ButtonsGroupView(onDirectionsTap: { viewModel.onTapDirections() }, onNoteTap: {}, onFavoriteTap: {}, onUpvoteTap: {})
-                                .frame(maxWidth: .infinity)
-                                .padding(.horizontal, 24)
-                            if shop.longDescription != nil {
-                                TruncatableText(text: shop.longDescription ?? "")
-                            }
-                            CafeDetailsView(shop: shop)
-                            BottomText(shop: shop)
+    let viewModel: CoffeeShopViewModel
+    let shopId: UUID
+    
+    var body: some View {
+        ScrollView {
+            if let shop = viewModel.shop {
+                VStack (spacing: 0) {
+                    HeaderView(shopID: shop.id)
+                    VStack(spacing: 24) {
+                        TitleView(shop: shop, travelTime: viewModel.travelTime)
+                        ButtonsGroupView(
+                            onDirectionsTap: { viewModel.onTapDirections() },
+                            onNoteTap: {},
+                            onFavoriteTap: {},
+                            onUpvoteTap: {}
+                        )
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, 24)
+                        if shop.longDescription != nil {
+                            TruncatableText(text: shop.longDescription ?? "")
                         }
-                        .padding(.bottom, 120)
+                        CafeDetailsView(shop: shop)
+                        BottomText(shop: shop)
                     }
+                    .padding(.bottom, 120)
                 }
             }
-            .coordinateSpace(name: "scroll")
+        }
+        .coordinateSpace(name: "scroll")
     }
 }
 
@@ -404,6 +417,6 @@ struct MapView: UIViewRepresentable {
 
 struct CoffeeShopDetailViewAlt_Previews: PreviewProvider {
     static var previews: some View {
-        CoffeeShopView(shopId: UUID(uuidString: "1234")!)
+        CoffeeShopView(shopId: UUID(uuidString: "1234")!, shopService: ShopService())
     }
 }

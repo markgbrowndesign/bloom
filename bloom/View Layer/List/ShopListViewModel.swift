@@ -1,47 +1,39 @@
 //
-//  DiscoverViewModel.swift
+//  ShopListViewModel.swift
 //  bloom
 //
-//  Created by Mark Brown on 15/06/2025.
+//  Created by Mark Brown on 26/05/2025.
 //
 
 import Foundation
-import Observation
 import Combine
 
-@Observable
-class DiscoverViewModel {
+class ShopListViewModel {
     
     var shops: [Shop] = []
     var isLoading = false
     var error: Error?
     
-    var closestShop: Shop? { shops.first }
-    var nearbyShops: [Shop] { Array(shops.dropFirst()) }
-    var hasShops: Bool { !shops.isEmpty }
-    
     let shopService: ShopService
     
     //MARK: - Private
-    
-    private var cancellables = Set<AnyCancellable>()
+    private var cancellables: Set<AnyCancellable> = []
     
     init(shopService: ShopService) {
         self.shopService = shopService
         observeLocation()
     }
     
-    func loadContent() async {
+    func loadShops() async {
         guard shops.isEmpty else { return }
         await fetchShops()
     }
     
-    func refreshContent() async {
-        ImageService.shared.clearCache()
-        await fetchShops()
+    func refreshShops() async {
+       await fetchShops()
     }
     
-    // MARK: - Private Methods
+    //MARK: - Private
     
     private func observeLocation() {
         LocationService.shared.$currentLocation
@@ -50,6 +42,7 @@ class DiscoverViewModel {
             .sink { [weak self] _ in
                 guard let self, self.shops.isEmpty else { return }
                 Task { await self.fetchShops() }
+                
             }
             .store(in: &cancellables)
     }
@@ -59,13 +52,10 @@ class DiscoverViewModel {
         error = nil
         
         do {
-                let result = try await shopService.loadNearbyShops()
-                print("DiscoverViewModel fetched \(result.count) shops")
-                shops = result
-            } catch {
-                print("DiscoverViewModel error: \(error)")
-                self.error = error
-            }
+            shops = try await shopService.loadAllShops()
+        } catch {
+            self.error = error
+        }
         
         isLoading = false
     }
