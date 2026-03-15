@@ -20,9 +20,10 @@ class DiscoverViewModel {
     var nearbyShops: [Shop] { Array(shops.dropFirst()) }
     var hasShops: Bool { !shops.isEmpty }
     
+    let shopService: ShopService
+    
     //MARK: - Private
     
-    private let shopService: ShopService
     private var cancellables = Set<AnyCancellable>()
     
     init(shopService: ShopService) {

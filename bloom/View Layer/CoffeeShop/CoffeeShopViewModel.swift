@@ -6,54 +6,56 @@
 //
 
 import Foundation
-import Supabase
-import Combine
 import MapKit
+import Observation
+   
+@Observable
+class CoffeeShopViewModel {
     
-class CoffeeShopViewModel: ObservableObject {
+    var shop: Shop?
+    var isLoading = false
+    var error: Error?
+    var travelTime: TimeInterval?
     
-    @Published var shop: Shop?
-    @Published var isLoading = false
-    @Published var error: Error?
-    @Published var travelTime: TimeInterval?
+    private let shopService: ShopService
     
-    private let repository = CoffeeShopRepository()
-    private var cancellable = Set<AnyCancellable>()
+    init(shopService: ShopService) {
+        self.shopService = shopService
+    }
     
-    func loadShop(shopId: UUID, forceRefresh: Bool = false) {
+    func loadShop(shopId: UUID) async {
 
-        repository.$shopDetails
-            .compactMap { $0[shopId] }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] loadingState in
-                switch loadingState {
-                case .idle:
-                    self?.isLoading = false
-                case .loading:
-                    self?.isLoading = true
-                    self?.error = nil
-                case .loaded(let shop):
-                    self?.isLoading = false
-                    self?.shop = shop
-                case .failed(let error):
-                    self?.isLoading = false
-                    self?.error = error
-                }
-            }
-            .store(in: &cancellable)
-        Task {
-            await repository.loadShopDetails(shopId: shopId, forceRefresh: forceRefresh)
+        isLoading = true
+        error = nil
+        
+        do {
+            shop = try await shopService.getShopDetails(shopId: shopId)
+        } catch {
+            self.error = error
         }
+        
+        isLoading = false
+        
+    }
+    
+    func refresh(shopId: UUID) async {
+        await loadShop(shopId: shopId)
     }
     
     func onTapDirections() {
         
-        guard let shopLatitude = shop?.coordinatesLatitude, let shopLongitude = shop?.coordinatesLongitude else { return }
+        guard
+            let shop = shop,
+            let shopLatitude = shop.coordinatesLatitude,
+            let shopLongitude = shop.coordinatesLongitude
+                else { return }
         
-        let location = CLLocationCoordinate2D(latitude: shopLatitude, longitude: shopLongitude)
+        let fullAddress = String("\(shop.addressFirstLine), \(shop.addressSecondLine)")
+        let shortAddress = shop.addressFirstLine
+        let location = CLLocation(latitude: shopLatitude, longitude: shopLongitude)
         
-        let mapItem = MKMapItem(placemark: MKPlacemark(coordinate: location, addressDictionary: nil))
-        mapItem.name = shop?.name ?? ""
+        let mapItem = MKMapItem(location: location, address: MKAddress(fullAddress: fullAddress, shortAddress: shortAddress))
+        mapItem.name = shop.name
         
       
         

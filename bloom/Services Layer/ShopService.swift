@@ -12,20 +12,45 @@ class ShopService: ObservableObject {
     
     //private let locationService: LocationService
     private let apiService = APIService()
+    private let cacheService = CacheService()
+    
+    private let nearbyShopsKey = "nearby_shops"
+    private let allShopsKey = "all_shops"
+    
+    private let nearbyShopsTTL: TimeInterval = 5 * 60
+    private let allShopsTTL: TimeInterval = 60 * 60
+    private let shopDetailsTTL: TimeInterval = .infinity
     
     func loadNearbyShops() async throws -> [Shop] {
-        try await fetchNearby(limit: 4)
+        if let cached = cacheService.load([Shop].self, forKey: nearbyShopsKey, maxAge: nearbyShopsTTL) {
+            return cached
+        }
+        let shops = try await fetchNearby(limit: 4)
+        cacheService.save(shops, forKey: nearbyShopsKey)
+        return shops
     }
     
     func loadAllShops() async throws -> [Shop] {
-        try await fetchNearby(limit: 100)
+        if let cached = cacheService.load([Shop].self, forKey: allShopsKey, maxAge: allShopsTTL) {
+            return cached
+        }
+        let shops = try await fetchNearby(limit: 100)
+        cacheService.save(shops, forKey: allShopsKey)
+        return shops
     }
     
     func getShopDetails(shopId: UUID) async throws -> Shop {
-        guard let shopDetails = try await apiService.fetchShopWith(id: shopId) else {
+        
+        let cacheKey = "shop_\(shopId.uuidString)"
+        if let cached = cacheService.load(Shop.self, forKey: cacheKey, maxAge: shopDetailsTTL) {
+            return cached
+        }
+        
+        guard let shop = try await apiService.fetchShopWith(id: shopId) else {
             throw ShopServiceError.shopNotFound
         }
-        return shopDetails
+        
+        return shop
     }
     
     //MARK: - Private

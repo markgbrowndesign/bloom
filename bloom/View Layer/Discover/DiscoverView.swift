@@ -12,11 +12,10 @@ struct DiscoverView: View {
     @State private var viewModel: DiscoverViewModel
     
     init(shopService: ShopService) {
-        self._viewModel = State(wrappedValue: DiscoverViewModel(shopService: shopService))
+       _viewModel = State(wrappedValue: DiscoverViewModel(shopService: shopService))
     }
     
     var body: some View {
-        
         NavigationStack {
             Group {
                 if viewModel.isLoading {
@@ -29,6 +28,7 @@ struct DiscoverView: View {
                     )
                 } else if viewModel.hasShops {
                     DiscoverContentView (
+                        shopService: viewModel.shopService,
                         closestShop: viewModel.closestShop,
                         nearbyShops: viewModel.nearbyShops
                     )
@@ -67,7 +67,7 @@ struct DiscoverView: View {
 
 private struct DiscoverContentView: View {
 
-    
+    let shopService: ShopService
     let closestShop: Shop?
     let nearbyShops: [Shop]
     
@@ -76,7 +76,7 @@ private struct DiscoverContentView: View {
             if let closestShop {
                 Section {
                     ZStack(alignment: .leading) {
-                        NavigationLink (destination: CoffeeShopView(shopId: closestShop.id)) {
+                        NavigationLink (destination: CoffeeShopView(shopId: closestShop.id, shopService: shopService)) {
                             EmptyView()
                         }
                         .opacity(0)
@@ -98,7 +98,7 @@ private struct DiscoverContentView: View {
             }
             Section {
                 ForEach(nearbyShops, id: \.id) { shop in
-                    NavigationLink (destination: CoffeeShopView(shopId: shop.id)) {
+                    NavigationLink (destination: CoffeeShopView( shopId: shop.id, shopService: shopService)) {
                         ShopListItemView(shop: shop)
                     }
                     .buttonStyle(.plain)

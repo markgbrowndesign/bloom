@@ -12,7 +12,7 @@ struct ShopListView: View {
     @State private var viewModel: ShopListViewModel
     
     init(shopService: ShopService) {
-        self._viewModel = State(wrappedValue: ShopListViewModel(shopService: shopService))
+        _viewModel = State(wrappedValue: ShopListViewModel(shopService: shopService))
     }
     
     var body: some View {
@@ -34,7 +34,7 @@ struct ShopListView: View {
                         action: { Task { await viewModel.refreshShops() } }
                     )
                 } else {
-                    CoffeeShopList(shops: viewModel.shops)
+                    CoffeeShopList(shopService: viewModel.shopService, shops: viewModel.shops)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -62,13 +62,14 @@ struct ShopListView: View {
 
 struct CoffeeShopList: View {
     
+    let shopService: ShopService
     let shops: [Shop]
     
     var body: some View {
         List {
             Section {
                 ForEach(shops, id: \.id) { shop in
-                    NavigationLink (destination: CoffeeShopView(shopId: shop.id)) {
+                    NavigationLink (destination: CoffeeShopView(shopId: shop.id, shopService: shopService)) {
                         ShopListItemView(shop: shop)
                     }
                     .buttonStyle(.plain)

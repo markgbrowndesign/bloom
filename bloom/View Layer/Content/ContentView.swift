@@ -13,9 +13,7 @@ struct ContentView: View {
     @EnvironmentObject var appState: AuthService
     
     // Create a single instance that persists across the app
-    @StateObject private var shopRepository = CoffeeShopRepository()
-    @StateObject private var shopService = ShopService()
-    
+    private var shopService = ShopService()
     private var viewModel = ContentViewModel()
     
     init() {

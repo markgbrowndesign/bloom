@@ -14,7 +14,9 @@ class ShopListViewModel {
     var isLoading = false
     var error: Error?
     
-    private let shopService: ShopService
+    let shopService: ShopService
+    
+    //MARK: - Private
     private var cancellables: Set<AnyCancellable> = []
     
     init(shopService: ShopService) {
